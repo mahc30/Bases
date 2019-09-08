@@ -1,12 +1,6 @@
 Sólo las tablas con 3 o más campos tienen formularios
 
 Solo lectura/Consultas:
-Instrumento
 Periodo	
 
 Lectura/Escritura:
-CompositorXObra
-InstrumentoxObra
-MetricaxObra
-Obra
-Compositor
