@@ -1,6 +1,3 @@
-Sólo las tablas con 3 o más campos tienen formularios
+Consultas:
 
-Solo lectura/Consultas:
-Periodo	
-
-Lectura/Escritura:
+- Consultar los nombres de las obras que sean del periodo del Clasicismo
