@@ -1,3 +1,0 @@
-Consultas:
-
-- Consultar los nombres de las obras que sean del periodo del Clasicismo
