@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Musiquita</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link type="text/css" href="css/style.css" />
+</head>
+
+<body>
+    <!----------------------- Form Agregar Compositor ----------------------------->
+
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border form-container">
+                <form method="POST" action="/addComposer">
+                    <div class="form-group">
+                        <div class="col align-self-center text-center">
+                            <h3>Agregar Compositor</h3>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="align-self-center">
+                            <input type="text" class="form-control" name="nombre" id="inst-name"
+                                aria-describedby="helpId" placeholder="Ejemplo: Morzat" required="required">
+                            <small id="helpId" class="form-text text-muted">Nombre del Compositor</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <label for="nac">Fecha de Nacimiento:</label>
+                        <input type="date" name="nac" id="nac" required="required">
+                    </div>
+
+                    <div class="form-group text-center">
+                        <label for="fal">Fecha de Fallecimiento:</label>
+                        <input type="date" name="fal" id="fal" required="required">
+                    </div>
+
+                    <div class="form-group text-center">
+                        <label for="comment">Descripción:</label>
+                        <textarea class="form-control" rows="5" id="descripcion" name="descripcion"></textarea>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </div>
+                </form>
+
+                <div class="form-container border text-right">
+                    <form method="GET" action="/">
+                        <button type="submit" class="btn btn-info">Home</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<style>
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/herringbone.png');
+        background-repeat: repeat;
+    }
+
+    .form-container {
+        padding: 2%;
+    }
+</style>
+
+</html>

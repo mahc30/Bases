@@ -1,0 +1,13 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+body{
+    width: 100vh;
+}
+.form-container {
+    width: 40%;
+    padding: 2%;
+}
