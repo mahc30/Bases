@@ -36,8 +36,8 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
 const path = require('path');
-const dom = require('express-dom');
-let ejs = require('ejs');
+const ejs = require('ejs');
+
 // ----------------------Creating SQL Connection---------------------------------
 
 const db = mysql.createConnection({
@@ -60,8 +60,9 @@ db.connect((err) => {
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(__dirname + "/public"));
-app.use(express.static('public'))
-
+app.use(express.static('public'));
+    // set the view engine to ejs
+app.set('view engine', 'ejs');
 
 //----------------------------Creating DB------------------------------
 app.get('/createdb', (req, res) => {
@@ -322,21 +323,7 @@ app.get('/addCountries', (req, res) => {
 
 //---------------------------- SELECT QUERY----------------------------
 app.get('/getAll/:table/:col', (req, res) => {
-    
-    let table = req.params.table;
-    let col = req.params.col;
-    let sql = `SELECT ${col} FROM ${table}`;
-    let query = db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        console.log(result);
-
-    });
-
-    res.redirect("/");
+    res.redirect(`/view/${req.params.table}/${req.params.col}`);
 });
 
 //----------------------------Select Single Object----------------------------
@@ -400,11 +387,39 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'public', '/index.html'));
 });
 
+app.get('/view/:table/:col', function (req, res, next) {
+
+    let table = req.params.table;
+    let col = req.params.col;
+    let sql = `SELECT ${col} FROM ${table}`;
+    let query = db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        res.render(`${table}.ejs`, {result: result});
+    });
+    
+});
+
+app.get('/view/obra', function (req, res, next) {
+    let sql = 'SELECT * FROM instrumentos';
+    let query = db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }        
+    });
+     res.render('ObraForm.ejs', {result: 'ye'});    
+});
 //----------------------------GetForm----------------------------
 
 app.get('/form/:name', (req, res, next) => {
-
     var name = req.params.name.concat('.html');
-//    console.log(name);
-    res.sendFile(path.join(__dirname, 'public',`/${name}`));
+    //    console.log(name);
+    if(name === 'obraForm.html'){
+        res.redirect('/view/obra')
+    }
+    res.sendFile(path.join(__dirname, 'public', `/${name}`));
 });

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Musiquita</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link type="text/css" href="css/style.css" />
+</head>
+
+<body class="text-center">
+    <!----------------------- Form Agregar Obra ----------------------------->
+
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border form-container">
+                <form method="POST" action="/addObra">
+                    <div class="form-group">
+                        <div class="col align-self-center text-center">
+                            <h3>Agregar Obra</h3>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="align-self-center">
+                            <input type="text" class="form-control" name="nombre" id="inst-name"
+                                aria-describedby="helpId" placeholder="Ejemplo: Himno de la Alegría"
+                                required="required">
+                            <small id="helpId" class="form-text text-muted">Nombre de la Obra</small>
+                        </div>
+                    </div>
+
+                    <div class="form-check text-center">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" value="">Arreglo
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" name="arreglo" id="arreglo" value="checkedValue"
+                                class="custom-control-input">
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description"></span>
+                        </label>
+                    </div>
+
+                    <label for="tonalidad">Tonalidad:</label>
+                    <select class="form-control" class="sltonalidad">
+                        <option>1</option>
+                    </select>
+                    <div class="form-group">
+                        <label for="comp">Compositor/Arreglista:</label>
+                        <select class="form-control" class="slcomp">
+                            <option>1</option>
+                        </select>
+                        <select class="form-control" class="slcomp">
+                            <option>1</option>
+                        </select>
+
+                        <label for="slInstrumentos">Instrumentos:</label>
+                        <select class="form-control" class="slInstrumentos">
+                            <option></option>
+                        </select>
+                        <select class="form-control" class="slInstrumentos">
+                            <option>1</option>
+                        </select>
+                        <select class="form-control" class="slInstrumentos">
+                            <option>1</option>
+                        </select>
+                        <select class="form-control" class="slInstrumentos">
+                            <option>1</option>
+                        </select>
+                        <select class="form-control" class="slInstrumentos">
+                            <option>1</option>
+                        </select>
+                        <select class="form-control" id="slInstrumentos">
+                            <option>1</option>
+                        </select>
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </div>
+                </form>
+
+                <form method="GET" action="/">
+                    <button type="submit" class="btn btn-info">Home</button>
+                </form>
+            </div>
+        </div>
+</body>
+
+
+<style>
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/herringbone.png');
+        background-repeat: repeat;
+    }
+
+    .form-container {
+        padding: 2%;
+    }
+</style>
+
+</html>
