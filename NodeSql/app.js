@@ -61,7 +61,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(__dirname + "/public"));
 app.use(express.static('public'));
-    // set the view engine to ejs
+// set the view engine to ejs
 app.set('view engine', 'ejs');
 
 //----------------------------Creating DB------------------------------
@@ -247,6 +247,27 @@ app.post('/addComposer', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', '/index.html'));
 });
 
+app.post('/addObra', (req, res) => {
+    console.log(req.body);
+    console.log(req.body.selectpicker);
+    let nombre = req.body.nombre;
+    /*
+    let nac = req.body.nac;
+    let fal = req.body.nac;
+    let desc = req.body.descripcion;
+
+    let sql = 'INSERT INTO compositores SET ?';
+
+    let query = db.query(sql, data, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+    });
+*/
+    res.redirect('/view/obra');
+});
+
 app.get('/addInstrumentType', (req, res) => {
     let instrument = {
         tipo: 'Percusión'
@@ -398,27 +419,76 @@ app.get('/view/:table/:col', function (req, res, next) {
             return;
         }
 
-        res.render(`${table}.ejs`, {result: result});
+        res.render(`${table}.ejs`, { result: result });
     });
-    
+
 });
 
+var tonalidades = [];
+var compositores = [];
+var instrumentos = [];
+
 app.get('/view/obra', function (req, res, next) {
-    let sql = 'SELECT * FROM instrumentos';
-    let query = db.query(sql, (err, result) => {
+    let sql = 'SELECT tonalidad FROM tonalidades';
+    db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
             return;
-        }        
+        }
+        else {
+            setValue(result,false,false);
+        }
     });
-     res.render('ObraForm.ejs', {result: 'ye'});    
+    
+    sql = 'SELECT nombre FROM compositores';
+    db.query(sql, (err, result) => {
+        if (err) { 
+            console.log(err);
+            return;
+        }
+        else {
+            setValue(false,result,false);
+        }
+    });
+    
+    sql = 'SELECT instrumento FROM instrumentos';
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        else {
+            setValue(false,false,result);
+        }
+    });
+
+    res.render('ObraForm.ejs', { tonalidades: tonalidades, compositores: compositores, instrumentos: instrumentos});
+
 });
+
+function setValue(val1,val2,val3) {
+    if(val1){
+        tonalidades = val1;
+    }
+    else if(val2){
+        compositores = val2;
+    }else{
+        instrumentos = val3;
+    }
+
+    if(val1 && val2 && val3){
+        console.log(tonalidades);
+        console.log(compositores);
+        console.log(instrumentos);
+    }
+}
+
 //----------------------------GetForm----------------------------
 
 app.get('/form/:name', (req, res, next) => {
     var name = req.params.name.concat('.html');
     //    console.log(name);
-    if(name === 'obraForm.html'){
+    if (name === 'obraForm.html') {
         res.redirect('/view/obra')
     }
     res.sendFile(path.join(__dirname, 'public', `/${name}`));
