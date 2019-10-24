@@ -247,24 +247,74 @@ app.post('/addComposer', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', '/index.html'));
 });
 
+function debug(data) {
+    console.log("debug: " + data);
+}
+
+var dbmult = mysql.createConnection({
+    multipleStatements: true,
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'nodemysql'
+});
 app.post('/addObra', (req, res) => {
-    console.log(req.body);
-    console.log(req.body.selectpicker);
     let nombre = req.body.nombre;
-    /*
-    let nac = req.body.nac;
-    let fal = req.body.nac;
-    let desc = req.body.descripcion;
+    let esArreglo = req.body.esArreglo;
+    let tonalidad = req.body.tonalidad;
+    let genero = req.body.genero;
 
-    let sql = 'INSERT INTO compositores SET ?';
+    let compositores = [
+        req.body.compositor1,
+        req.body.compositor2
+    ]
+    let instrumentos = [
+        req.body.instrumento1,
+        req.body.instrumento2,
+        req.body.instrumento3,
+        req.body.instrumento4,
+        req.body.instrumento5
+    ]
 
-    let query = db.query(sql, data, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
+    esArreglo ? esArreglo = 'TRUE' : esArreglo = 'FALSE';
+
+    let data = [
+        compositores,
+        instrumentos
+    ];
+
+    let tonsql = "SELECT id FROM tonalidades WHERE tonalidad = '" + tonalidad + "'";
+
+    let gensql = "SELECT id FROM generos WHERE genero = '" + genero + "'";
+
+    let compsql = "SELECT id FROM compositores WHERE nombre IN (?)";
+
+    let instsql = "SELECT id FROM instrumentos WHERE instrumento IN (?)";
+
+    let query = dbmult.query(gensql + ';' + tonsql + ';' + compsql + ';' + instsql, data, (err, result) => {
+        if (err) console.log(err);
+
+        let sql = 'INSERT INTO obras SET ?';
+            console.log(result);
+            let data = {
+                genero : result[0][0].id,
+                tonalidad: result[1][0].id,
+                compositores: result[2][0].id,
+                instrumentos: result[3][0].id
+            }
+
+            let query = db.query(sql, data, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+            });
     });
-*/
+
+
+   
+            
+       
     res.redirect('/view/obra');
 });
 
@@ -424,6 +474,7 @@ app.get('/view/:table/:col', function (req, res, next) {
 
 });
 
+var generos = [];
 var tonalidades = [];
 var compositores = [];
 var instrumentos = [];
@@ -436,21 +487,21 @@ app.get('/view/obra', function (req, res, next) {
             return;
         }
         else {
-            setValue(result,false,false);
+            setValue(result, false, false,false);
         }
     });
-    
+
     sql = 'SELECT nombre FROM compositores';
     db.query(sql, (err, result) => {
-        if (err) { 
+        if (err) {
             console.log(err);
             return;
         }
         else {
-            setValue(false,result,false);
+            setValue(false, result, false,false);
         }
     });
-    
+
     sql = 'SELECT instrumento FROM instrumentos';
     db.query(sql, (err, result) => {
         if (err) {
@@ -458,25 +509,36 @@ app.get('/view/obra', function (req, res, next) {
             return;
         }
         else {
-            setValue(false,false,result);
+            setValue(false, false, result);
         }
     });
-
-    res.render('ObraForm.ejs', { tonalidades: tonalidades, compositores: compositores, instrumentos: instrumentos});
+    sql = 'SELECT genero FROM generos';
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        else {
+            setValue(false, false, false, result);
+        }
+    });
+    res.render('ObraForm.ejs', { generos: generos, tonalidades: tonalidades, compositores: compositores, instrumentos: instrumentos });
 
 });
 
-function setValue(val1,val2,val3) {
-    if(val1){
+function setValue(val1, val2, val3,val4) {
+    if (val1) {
         tonalidades = val1;
     }
-    else if(val2){
+    else if (val2) {
         compositores = val2;
-    }else{
+    } else if (val3){
         instrumentos = val3;
+    } else{
+        generos = val4;
     }
 
-    if(val1 && val2 && val3){
+    if (val1 && val2 && val3 && val4) {
         console.log(tonalidades);
         console.log(compositores);
         console.log(instrumentos);

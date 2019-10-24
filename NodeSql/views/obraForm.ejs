@@ -17,11 +17,11 @@
 
     <div class="container-fluid h-100">
         <div class="row justify-content-center align-items-center h-100">
-            <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border form-container">
+            <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border border-dark form-container rounded shadow p-3 mb-5 bg-white rounded bg-transparent">
                 <form method="POST" action="/addObra">
                     <div class="form-group">
                         <div class="col align-self-center text-center">
-                            <h3>Agregar Obra</h3>
+                            <strong>Agregar Obra</strong>
                         </div>
                     </div>
 
@@ -36,13 +36,13 @@
 
                     <div class="form-check text-center">
                         <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" value="">Arreglo
+                            <input name="esArreglo" type="checkbox" class="form-check-input" value="">Arreglo
                         </label>
                     </div>
 
                     <div class="form-group">
                         <label class="custom-control custom-checkbox">
-                            <input type="checkbox" name="arreglo" id="arreglo" value="checkedValue"
+                            <input type="checkbox" name="esArreglo" id="esArreglo" value="esArreglo"
                                 class="custom-control-input">
                             <span class="custom-control-indicator"></span>
                             <span class="custom-control-description"></span>
@@ -50,46 +50,52 @@
                     </div>
 
                     <label for="tonalidad">Tonalidad:</label>
-                    <select class="selectpicker" data-style="btn-info" name="tonalidad">
-                        <% for(var i=0;i<tonalidades.length  ;i++){ %>
+                    <select class="form-control" data-style="btn-info" name="tonalidad">
+                        <% for(var i = tonalidades.length -1; i >= 0; i--){ %>
                         <option value="<%= tonalidades[i].tonalidad %>"><%= tonalidades[i].tonalidad %></option>
+                        <% } %>
+                    </select>
+                    <label for="genero">Género:</label>
+                    <select class="form-control" data-style="btn-info" name="genero">
+                        <% for(var i = generos.length -1; i >= 0; i--){ %>
+                        <option value="<%= generos[i].genero %>"><%= generos[i].genero %></option>
                         <% } %>
                     </select>
                     <div class="form-group">
                         <label for="comp">Compositor/Arreglista:</label>
                         <select class="form-control" class="slcomp" name="compositor1">
-                            <% for(var i=0;i<compositores.length  ;i++){ %>
+                            <% for(var i = compositores.length -1; i >= 0; i--){ %>
                             <option><%= compositores[i].nombre %></option>
                             <% } %>
                         </select>
                         <select class="form-control" class="slcomp" name="compositor2">
-                            <% for(var i=0;i<compositores.length  ;i++){ %>
+                            <% for(var i = compositores.length -1; i >= 0; i--){ %>
                             <option><%= compositores[i].nombre %></option>
                             <% } %>
                         </select>
                         <label for="slInstrumentos">Instrumentos:</label>
-                        <select class="form-control" class="slInstrumentos" name="instrumentos1">
-                            <% for(var i=0;i<instrumentos.length  ;i++){ %>
+                        <select class="form-control" class="slInstrumentos" name="instrumento1">
+                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
                             <option><%= instrumentos[i].instrumento %></option>
                             <% } %>
                         </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumentos2">
-                            <% for(var i=0;i<instrumentos.length  ;i++){ %>
+                        <select class="form-control" class="slInstrumentos" name="instrumento2">
+                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
                             <option><%= instrumentos[i].instrumento %></option>
                             <% } %>
                         </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumentos3">
-                            <% for(var i=0;i<instrumentos.length  ;i++){ %>
+                        <select class="form-control" class="slInstrumentos" name="instrumento3">
+                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
                             <option><%= instrumentos[i].instrumento%></option>
                             <% } %>
                         </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumentos4">
-                            <% for(var i=0;i<instrumentos.length  ;i++){ %>
+                        <select class="form-control" class="slInstrumentos" name="instrumento4">
+                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
                             <option><%= instrumentos[i].instrumento %></option>
                             <% } %>
                         </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumentos5">
-                            <% for(var i=0;i<instrumentos.length  ;i++){ %>
+                        <select class="form-control" class="slInstrumentos" name="instrumento5">
+                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
                             <option><%= instrumentos[i].instrumento %></option>
                             <% } %>
                         </select>
@@ -114,12 +120,13 @@
     }
 
     body {
-        background-image: url('/images/herringbone.png');
-        background-repeat: repeat;
+         background-image: url('/images/bg5.jpg');
+        background-repeat:no-repeat;
+        background-size: cover;
     }
 
     .form-container {
-        padding: 2%;
+        padding: 1%;
     }
 </style>
 
