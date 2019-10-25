@@ -1,29 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Musiquita</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Musiquita</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
+
 <body>
 
-<table class="table table-striped">
+  <table class="table table-striped">
     <tr class="text-center">
-       <th>Id</th       ><th>Nombre</th><th>Tipo</th>
+      <th>Id</th>
+      <th>Nombre</th>
+      <th>Tipo</th>
     </tr>
- 
+
     <% for (var i = 0; i < result.length; i++) { %>
-     <tr class="text-center">
-       <td><%= result[i].id %></td>
-       <td><%= result[i].instrumento %></td>
-       <td><%= result[i].tipo %></td>
-     </tr>    
+    <tr name="<% result[i].id %>" class="text-center">
+      <td><%= result[i].id %></td>
+      <td><%= result[i].instrumento %></td>
+      <td><%= result[i].tipo %></td>
+      <td>
+        <form method="GET" action="/ModifY/instrumentos/<%= result[i].id%>">
+          <button type="submit" class="btn btn-primary">Editar</button>
+        </form>
+      </td>
+      <td>
+        <form method="POST" action="/deleteInstruments/<%= result[i].id%>">
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+      </td>
+    </tr>
     <% } %>
- </table>
- 
- </body>
+  </table>
+
+</body>
+
 </html>

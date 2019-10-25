@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Musiquita</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body class="">
+    <!----------------------- Form Agregar Instrumento ----------------------------->
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div
+                class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border border-dark form-container shadow-lg p-3 mb-5 bg-white rounded bg-transparent">
+                <form method="POST" action="/modinst/<%= id %>">
+                    <div class="form-group">
+                        <div class="col align-self-center text-center">
+                            <h3><%= nombre %></h3>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="align-self-center">
+                            <label for=""></label>
+                            <input type="text" class="form-control" name="nombre" id="inst-name"
+                                aria-describedby="helpId" placeholder="Ejemplo: Bajo" required="required">
+                            <small id="helpId" class="form-text text-muted">Cambiar Nombre del Instrumento</small>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="text-center align-self-center">
+                            <h6>Tipo</h6>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <input type="radio" name="tipo" value="cuerda" checked> Cuerda<br>
+                        <input type="radio" name="tipo" value="viento"> Viento<br>
+                        <input type="radio" name="tipo" value="percusion"> Percusión
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    </div>
+                </form>
+
+                <form method="GET" action="/" class="text-right">
+                    <button type="submit" class="btn btn-info">Home</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+<style>
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/bg2.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .form-container {
+        padding: 2%;
+    }
+</style>
+
+</html>

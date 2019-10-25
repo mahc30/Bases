@@ -37,7 +37,7 @@ const router = express.Router();
 const mysql = require('mysql');
 const path = require('path');
 const ejs = require('ejs');
-
+const bodyParser = require('body-parser');
 // ----------------------Creating SQL Connection---------------------------------
 
 const db = mysql.createConnection({
@@ -61,6 +61,8 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(__dirname + "/public"));
 app.use(express.static('public'));
+app.use(bodyParser.json()); // body en formato json
+app.use(bodyParser.urlencoded({ extended: false })); //body formulario
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 
@@ -177,22 +179,58 @@ app.get('/ModifyObrasTable', (req, res) => {
     });
 });
 
-app.get('/ModifyInstrumentosTable', (req, res) => {
-    let sql = 'ALTER TABLE nodemysql.instrumentos ADD COLUMN tipo int DEFAULT(1), ADD FOREIGN KEY (tipo) REFERENCES tiposinstrumento(id) ON DELETE CASCADE';
+app.get('/Modify/:tabla/:id', (req, res) => {
+    let sql = `SELECT * FROM ${req.params.tabla} WHERE id = ${req.params.id}`;
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
             return;
         }
-        console.log(result);
-        res.send('instrumentos Table Modified');
+
+        res.redirect(`/editForm/${result[0].id}/${result[0].instrumento}`);
     });
 });
 
+app.get('/editForm/:id/:nombre', (req, res) => {
+    let sql = `SELECT instrumentos.id, tiposInstrumento.tipo FROM instrumentos, tiposInstrumento WHERE instrumentos.id = ${req.params.id.replace(':', '')}`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        
+        let data = {
+            id : result[0].id,
+            nombre: req.params.nombre,
+            tipo: result[0].tipo,
+            tipoid: result[0].tipoid
+        }
+
+        res.render(`editForm.ejs`, data);
+    });
+});
+
+app.post('/modinst/:id/', (req, res) => {
+    console.log(req.body);
+    let newName = req.body.nombre;
+    let tipo = req.body.tipo;
+    let id = req.params.id;
+
+    let sql = `UPDATE instrumentos SET instrumento = '${newName}', tipo = (SELECT id FROM tiposInstrumento WHERE tipo = '${tipo}') WHERE id=${id}`;
+    console.log(sql);
+    db.query(sql, (err,result) => {
+        if(err) {
+            console.log(err);
+            return;
+        }
+
+        console.log(`Instrumento modificado: ${newName}`);
+        res.redirect("/getAll/instrumentos/*");
+    });
+    console.log(sql);
+});
 //----------------------------Insert Data----------------------------
 app.post('/addInstrument', (req, res) => {
-    console.log("Posted");
-    console.log(req.body);
     var instName = req.body.nombre;
     var tipo = req.body.tipo;
 
@@ -247,10 +285,6 @@ app.post('/addComposer', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', '/index.html'));
 });
 
-function debug(data) {
-    console.log("debug: " + data);
-}
-
 var dbmult = mysql.createConnection({
     multipleStatements: true,
     host: 'localhost',
@@ -258,6 +292,7 @@ var dbmult = mysql.createConnection({
     password: '',
     database: 'nodemysql'
 });
+
 app.post('/addObra', (req, res) => {
     let nombre = req.body.nombre;
     let esArreglo = req.body.esArreglo;
@@ -295,26 +330,22 @@ app.post('/addObra', (req, res) => {
         if (err) console.log(err);
 
         let sql = 'INSERT INTO obras SET ?';
-            console.log(result);
-            let data = {
-                genero : result[0][0].id,
-                tonalidad: result[1][0].id,
-                compositores: result[2][0].id,
-                instrumentos: result[3][0].id
+        console.log(result[2][0]);
+        let data = {
+            nombre: nombre,
+            arreglo: esArreglo,
+            genero: result[0][0].id,
+            tonalidad: result[1][0].id
+        }
+
+        let query = db.query(sql, data, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
             }
+        });
 
-            let query = db.query(sql, data, (err, result) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-            });
     });
-
-
-   
-            
-       
     res.redirect('/view/obra');
 });
 
@@ -433,18 +464,15 @@ app.get('/updateInstruments/:id', (req, res) => {
 });
 
 //----------------------------Delete Single instrument----------------------------
-app.get('/deleteInstruments/:id', (req, res) => {
+app.post('/deleteInstruments/:id', (req, res) => {
 
-    let newName = 'Updated Title';
-
-    let sql = `DELETE FROM instruments WHERE id = ${req.params.id}`;
+    let sql = `DELETE FROM instrumentos WHERE id = ${req.params.id}`;
     let query = db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
             return;
         }
-        console.log(result);
-        res.send(`Instrument ${req.params.id} Deleted`);
+        res.redirect("/view/instrumentos/*");
     });
 });
 
@@ -462,6 +490,7 @@ app.get('/view/:table/:col', function (req, res, next) {
 
     let table = req.params.table;
     let col = req.params.col;
+    
     let sql = `SELECT ${col} FROM ${table}`;
     let query = db.query(sql, (err, result) => {
         if (err) {
@@ -487,7 +516,7 @@ app.get('/view/obra', function (req, res, next) {
             return;
         }
         else {
-            setValue(result, false, false,false);
+            setValue(result, false, false, false);
         }
     });
 
@@ -498,7 +527,7 @@ app.get('/view/obra', function (req, res, next) {
             return;
         }
         else {
-            setValue(false, result, false,false);
+            setValue(false, result, false, false);
         }
     });
 
@@ -526,15 +555,15 @@ app.get('/view/obra', function (req, res, next) {
 
 });
 
-function setValue(val1, val2, val3,val4) {
+function setValue(val1, val2, val3, val4) {
     if (val1) {
         tonalidades = val1;
     }
     else if (val2) {
         compositores = val2;
-    } else if (val3){
+    } else if (val3) {
         instrumentos = val3;
-    } else{
+    } else {
         generos = val4;
     }
 
