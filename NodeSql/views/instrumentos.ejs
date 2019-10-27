@@ -18,6 +18,11 @@
       <th>Id</th>
       <th>Nombre</th>
       <th>Tipo</th>
+      <th></th>
+      <th></th>
+      <th><form method="GET" action="/" class="text-right">
+        <button type="submit" class="btn btn-info">Home</button>
+    </form></th>
     </tr>
 
     <% for (var i = 0; i < result.length; i++) { %>
@@ -25,6 +30,7 @@
       <td><%= result[i].id %></td>
       <td><%= result[i].instrumento %></td>
       <td><%= result[i].tipo %></td>
+      <td></td>
       <td>
         <form method="GET" action="/ModifY/instrumentos/<%= result[i].id%>">
           <button type="submit" class="btn btn-primary">Editar</button>

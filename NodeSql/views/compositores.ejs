@@ -13,7 +13,9 @@
 
 <table class="table table-striped">
     <tr class="text-center">
-       <th>Id</th><th>Nombre</th><th>Fecha de Nacimiento</th><th>Fecha de Fallecimiento</th><th>Descripcion</th>
+       <th>Id</th><th>Nombre</th><th>Fecha de Nacimiento</th><th>Fecha de Fallecimiento</th><th>Descripcion</th><th></th><th><form method="GET" action="/" class="text-right">
+        <button type="submit" class="btn btn-info">Home</button>
+    </form></th>
     </tr>
  
     <% for (var i = 0; i < result.length; i++) { %>
@@ -24,6 +26,16 @@
        <td><%= result[i].fal %></td>
        <td><%= result[i].descripcion %></td>
 
+       <td>
+        <form method="GET" action="/ModifY/compositores/<%= result[i].id%>">
+          <button type="submit" class="btn btn-primary">Editar</button>
+        </form>
+      </td>
+      <td>
+        <form method="POST" action="/deleteInstruments/<%= result[i].id%>">
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+      </td>
      </tr>    
     <% } %>
  </table>

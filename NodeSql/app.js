@@ -44,7 +44,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'nodemysql'
+    database: 'nodemysql',
+    dateStrings: true
 });
 
 //-------------------------------Connection---------------------------
@@ -179,34 +180,35 @@ app.get('/ModifyObrasTable', (req, res) => {
     });
 });
 
-app.get('/Modify/:tabla/:id', (req, res) => {
-    let sql = `SELECT * FROM ${req.params.tabla} WHERE id = ${req.params.id}`;
+// EDITAR INSTRUMENTO
+app.get('/Modify/instrumentos/:id', (req, res) => {
+    let sql = `SELECT * FROM instrumentos WHERE id = ${req.params.id}`;
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
             return;
         }
 
-        res.redirect(`/editForm/${result[0].id}/${result[0].instrumento}`);
+        res.redirect(`/editInstForm/${result[0].id}/${result[0].instrumento}`);
     });
 });
 
-app.get('/editForm/:id/:nombre', (req, res) => {
+app.get('/editInstForm/:id/:nombre', (req, res) => {
     let sql = `SELECT instrumentos.id, tiposInstrumento.tipo FROM instrumentos, tiposInstrumento WHERE instrumentos.id = ${req.params.id.replace(':', '')}`;
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
             return;
         }
-        
+
         let data = {
-            id : result[0].id,
+            id: result[0].id,
             nombre: req.params.nombre,
             tipo: result[0].tipo,
             tipoid: result[0].tipoid
         }
 
-        res.render(`editForm.ejs`, data);
+        res.render(`editInstForm.ejs`, data);
     });
 });
 
@@ -218,8 +220,8 @@ app.post('/modinst/:id/', (req, res) => {
 
     let sql = `UPDATE instrumentos SET instrumento = '${newName}', tipo = (SELECT id FROM tiposInstrumento WHERE tipo = '${tipo}') WHERE id=${id}`;
     console.log(sql);
-    db.query(sql, (err,result) => {
-        if(err) {
+    db.query(sql, (err, result) => {
+        if (err) {
             console.log(err);
             return;
         }
@@ -229,6 +231,70 @@ app.post('/modinst/:id/', (req, res) => {
     });
     console.log(sql);
 });
+
+//MODIFICAR COMPOSITOR
+
+app.get('/Modify/compositores/:id', (req, res) => {
+    let sql = `SELECT * FROM compositores WHERE id = ${req.params.id}`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        res.redirect(`/editCompForm/${result[0].id}/${result[0].instrumento}`);
+    });
+});
+
+app.get('/editCompForm/:id/:nombre', (req, res) => {
+    let sql = `SELECT id, nombre, nac, fal, descripcion FROM compositores WHERE id = ${req.params.id.replace(':', '')}`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        let data = {
+            result: result
+        }
+
+        res.render(`editCompForm.ejs`, data);
+    });
+});
+
+app.post('/modComp/:id/', (req, res) => {
+    let id = req.params.id;
+    let newName = req.body.nombre;
+    let newNac = new Date(req.body.nac).toISOString().slice(0, 19).replace('T', ' ');;
+    let newFal = new Date(req.body.fal).toISOString().slice(0, 19).replace('T', ' ');;
+    let newDesc = `${req.body.descripcion}`;
+
+    if (validateDates(newNac, newFal)) {
+        let data = {
+            nombre: newName,
+            nac: newNac,
+            fal: newFal,
+            id: id,
+            descripcion: newDesc
+        }
+
+        let sql = 'UPDATE compositores SET ?';
+        db.query(sql, data, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            console.log(`Compositor modificado: ${newName}`);
+            res.redirect("/getAll/compositores/*");
+        });
+        console.log(sql);
+    }
+    else {
+        res.redirect(`/ModifY/compositores/${id}`);
+    }
+});
+
 //----------------------------Insert Data----------------------------
 app.post('/addInstrument', (req, res) => {
     var instName = req.body.nombre;
@@ -259,30 +325,34 @@ app.post('/addInstrument', (req, res) => {
 });
 
 app.post('/addComposer', (req, res) => {
-    console.log(req.body);
-
     let nombre = req.body.nombre;
     let nac = req.body.nac;
-    let fal = req.body.nac;
+    let fal = req.body.fal;
     let desc = req.body.descripcion;
 
-    let data = {
-        nombre: nombre,
-        nac: nac,
-        fal: fal,
-        descripcion: desc
-    }
+    if (validateDates(nac, fal)) {
 
-    let sql = 'INSERT INTO compositores SET ?';
-
-    let query = db.query(sql, data, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
+        let data = {
+            nombre: nombre,
+            nac: nac,
+            fal: fal,
+            descripcion: desc
         }
-    });
 
-    res.sendFile(path.join(__dirname, 'public', '/index.html'));
+        let sql = 'INSERT INTO compositores SET ?';
+
+        db.query(sql, data, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            console.log("Compositor Agregado");
+        });
+    }
+    
+        res.redirect("/form/compositorForm");
+    
 });
 
 var dbmult = mysql.createConnection({
@@ -423,6 +493,24 @@ app.get('/addCountries', (req, res) => {
     res.send("Paises added");
 });
 
+app.post('/addgen', (req, res) => {
+
+    let sql = `INSERT INTO generos SET ?`
+
+    let data = {
+        genero: req.body.nombre
+    };
+
+    db.query(sql, data, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        console.log("Género agregado");
+        res.redirect('/form/generoForm');
+    });
+});
 //---------------------------- SELECT QUERY----------------------------
 app.get('/getAll/:table/:col', (req, res) => {
     res.redirect(`/view/${req.params.table}/${req.params.col}`);
@@ -490,7 +578,7 @@ app.get('/view/:table/:col', function (req, res, next) {
 
     let table = req.params.table;
     let col = req.params.col;
-    
+
     let sql = `SELECT ${col} FROM ${table}`;
     let query = db.query(sql, (err, result) => {
         if (err) {
@@ -584,3 +672,18 @@ app.get('/form/:name', (req, res, next) => {
     }
     res.sendFile(path.join(__dirname, 'public', `/${name}`));
 });
+
+
+function twoDigits(d) {
+    if (0 <= d && d < 10) return "0" + d.toString();
+    if (-10 < d && d < 0) return "-0" + (-1 * d).toString();
+    return d.toString();
+}
+
+Date.prototype.toMysqlFormat = function () {
+    return this.getUTCFullYear() + "-" + twoDigits(1 + this.getUTCMonth()) + "-" + twoDigits(this.getUTCDate()) + " " + twoDigits(this.getUTCHours()) + ":" + twoDigits(this.getUTCMinutes()) + ":" + twoDigits(this.getUTCSeconds());
+};
+
+function validateDates(d1, d2) {
+    return (Date.parse(d1) < Date.parse(d2));
+}
