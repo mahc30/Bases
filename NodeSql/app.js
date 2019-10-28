@@ -274,11 +274,10 @@ app.post('/modComp/:id/', (req, res) => {
             nombre: newName,
             nac: newNac,
             fal: newFal,
-            id: id,
             descripcion: newDesc
         }
 
-        let sql = 'UPDATE compositores SET ?';
+        let sql = `UPDATE compositores SET ? WHERE id = ${id}`;
         db.query(sql, data, (err, result) => {
             if (err) {
                 console.log(err);
