@@ -349,9 +349,9 @@ app.post('/addComposer', (req, res) => {
             console.log("Compositor Agregado");
         });
     }
-    
-        res.redirect("/form/compositorForm");
-    
+
+    res.redirect("/form/compositorForm");
+
 });
 
 var dbmult = mysql.createConnection({
@@ -380,8 +380,8 @@ app.post('/addObra', (req, res) => {
         req.body.instrumento5
     ]
 
-    esArreglo ? esArreglo = 'TRUE' : esArreglo = 'FALSE';
-
+    esArreglo ? esArreglo = "1" : esArreglo = "0";
+    
     let data = [
         compositores,
         instrumentos
@@ -407,6 +407,7 @@ app.post('/addObra', (req, res) => {
             tonalidad: result[1][0].id
         }
 
+        console.log(data);
         let query = db.query(sql, data, (err, result) => {
             if (err) {
                 console.log(err);
@@ -551,17 +552,18 @@ app.get('/updateInstruments/:id', (req, res) => {
 });
 
 //----------------------------Delete Single instrument----------------------------
-app.post('/deleteInstruments/:id', (req, res) => {
+app.post('/delete/:tabla/:id', (req, res) => {
 
-    let sql = `DELETE FROM instrumentos WHERE id = ${req.params.id}`;
+    let sql = `DELETE FROM ${req.params.tabla} WHERE id = ${req.params.id}`;
     let query = db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
             return;
         }
-        res.redirect("/view/instrumentos/*");
+        res.redirect(`/view/${req.params.tabla}/*`);
     });
 });
+
 
 app.listen('3000', () => {
     console.log("running on 3000");
@@ -573,10 +575,75 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'public', '/index.html'));
 });
 
+var generos = [];
+var tonalidades = [];
+var compositores = [];
+var instrumentos = [];
+var tipos = [];
+
+function setTipo(val) {
+    tipos = val;
+}
+
 app.get('/view/:table/:col', function (req, res, next) {
 
     let table = req.params.table;
     let col = req.params.col;
+
+    if (table === "instrumentos") {
+        db.query(`SELECT tipo FROM tiposinstrumento`, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            setTipo(result);
+        });
+    }
+    else if (table === "obras") {
+
+        let sql = 'SELECT tonalidad FROM tonalidades';
+        db.query(sql, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            else {
+                setValue(result, false, false, false);
+            }
+        });
+
+        sql = 'SELECT nombre FROM compositores';
+        db.query(sql, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            else {
+                setValue(false, result, false, false);
+            }
+        });
+
+        sql = 'SELECT instrumento FROM instrumentos';
+        db.query(sql, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            else {
+                setValue(false, false, result);
+            }
+        });
+        sql = 'SELECT genero FROM generos';
+        db.query(sql, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            else {
+                setValue(false, false, false, result);
+            }
+        });
+    }
 
     let sql = `SELECT ${col} FROM ${table}`;
     let query = db.query(sql, (err, result) => {
@@ -585,15 +652,24 @@ app.get('/view/:table/:col', function (req, res, next) {
             return;
         }
 
+        if (table === "instrumentos") {
+            result.forEach(element => {
+                element.tipo === 1 ? element.tipo = tipos[0].tipo : '0';
+                element.tipo === 2 ? element.tipo = tipos[1].tipo : '0';
+                element.tipo === 3 ? element.tipo = tipos[2].tipo : '0';
+            });
+        } else if (table === "obras") {
+            result.forEach(element => {
+                element.arreglo === 0 ? element.arreglo = "No" : element.arreglo = "Si";
+                element.tonalidad = tonalidades[element.tonalidad - 1].tonalidad;
+                element.genero = generos[element.genero - 1].genero;
+            });
+        }
+
         res.render(`${table}.ejs`, { result: result });
     });
 
 });
-
-var generos = [];
-var tonalidades = [];
-var compositores = [];
-var instrumentos = [];
 
 app.get('/view/obra', function (req, res, next) {
     let sql = 'SELECT tonalidad FROM tonalidades';

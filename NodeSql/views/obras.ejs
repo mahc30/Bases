@@ -17,8 +17,9 @@
     <tr class="text-center">
       <th>Id</th>
       <th>Nombre</th>
-      <th>Tipo</th>
-      <th></th>
+      <th>Género</th>
+      <th>Arreglo</th>
+      <th>Tonalidad</th>
       <th></th>
       <th><form method="GET" action="/" class="text-right">
         <button type="submit" class="btn btn-info">Home</button>
@@ -28,16 +29,13 @@
     <% for (var i = 0; i < result.length; i++) { %>
     <tr name="<% result[i].id %>" class="text-center">
       <td><%= result[i].id %></td>
-      <td><%= result[i].instrumento %></td>
-      <td><%= result[i].tipo %></td>
+      <td><%= result[i].nombre %></td>
+      <td><%= result[i].genero %></td>
+      <td><%= result[i].arreglo %></td>
+      <td><%= result[i].tonalidad %></td>
       <td></td>
       <td>
-        <form method="GET" action="/ModifY/instrumentos/<%= result[i].id%>">
-          <button type="submit" class="btn btn-primary">Editar</button>
-        </form>
-      </td>
-      <td>
-        <form method="POST" action="/delete/instrumentos/<%= result[i].id%>">
+        <form method="POST" action="/delete/obras/<%= result[i].id%>">
           <button type="submit" class="btn btn-danger">Eliminar</button>
         </form>
       </td>
