@@ -367,47 +367,29 @@ app.post('/addObra', (req, res) => {
     let esArreglo = req.body.esArreglo;
     let tonalidad = req.body.tonalidad;
     let genero = req.body.genero;
-
-    let compositores = [
-        req.body.compositor1,
-        req.body.compositor2
-    ]
-    let instrumentos = [
-        req.body.instrumento1,
-        req.body.instrumento2,
-        req.body.instrumento3,
-        req.body.instrumento4,
-        req.body.instrumento5
-    ]
+    let compositor = req.body.compositor;
 
     esArreglo ? esArreglo = "1" : esArreglo = "0";
-    
-    let data = [
-        compositores,
-        instrumentos
-    ];
 
     let tonsql = "SELECT id FROM tonalidades WHERE tonalidad = '" + tonalidad + "'";
 
     let gensql = "SELECT id FROM generos WHERE genero = '" + genero + "'";
 
-    let compsql = "SELECT id FROM compositores WHERE nombre IN (?)";
+    let compsql = `SELECT id FROM compositores WHERE nombre = '${compositor}'`;
 
-    let instsql = "SELECT id FROM instrumentos WHERE instrumento IN (?)";
-
-    let query = dbmult.query(gensql + ';' + tonsql + ';' + compsql + ';' + instsql, data, (err, result) => {
+    let query = dbmult.query(gensql + ';' + tonsql + ';' + compsql, (err, result) => {
         if (err) console.log(err);
 
         let sql = 'INSERT INTO obras SET ?';
-        console.log(result[2][0]);
         let data = {
             nombre: nombre,
             arreglo: esArreglo,
             genero: result[0][0].id,
-            tonalidad: result[1][0].id
+            tonalidad: result[1][0].id,
+            compositor: result[2][0].id
         }
 
-        console.log(data);
+        //console.log(data);
         let query = db.query(sql, data, (err, result) => {
             if (err) {
                 console.log(err);
@@ -652,6 +634,8 @@ app.get('/view/:table/:col', function (req, res, next) {
             return;
         }
 
+        console.log(result);
+        console.log(compositores);
         if (table === "instrumentos") {
             result.forEach(element => {
                 element.tipo === 1 ? element.tipo = tipos[0].tipo : '0';
@@ -660,9 +644,11 @@ app.get('/view/:table/:col', function (req, res, next) {
             });
         } else if (table === "obras") {
             result.forEach(element => {
+                console.log(element.compositor);
                 element.arreglo === 0 ? element.arreglo = "No" : element.arreglo = "Si";
                 element.tonalidad = tonalidades[element.tonalidad - 1].tonalidad;
                 element.genero = generos[element.genero - 1].genero;
+                element.compositor = compositores[element.compositor - 5].nombre;
             });
         }
 

@@ -17,7 +17,8 @@
 
     <div class="container-fluid h-100">
         <div class="row justify-content-center align-items-center h-100">
-            <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border border-dark form-container rounded shadow p-3 mb-5 bg-white rounded bg-transparent">
+            <div
+                class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border border-dark form-container rounded shadow p-3 mb-5 bg-white rounded bg-transparent">
                 <form method="POST" action="/addObra">
                     <div class="form-group">
                         <div class="col align-self-center text-center">
@@ -42,8 +43,7 @@
 
                     <div class="form-group">
                         <label class="custom-control custom-checkbox">
-                            <input type="checkbox" name="" id="" value=""
-                                class="custom-control-input">
+                            <input type="checkbox" name="" id="" value="" class="custom-control-input">
                             <span class="custom-control-indicator"></span>
                             <span class="custom-control-description"></span>
                         </label>
@@ -63,40 +63,9 @@
                     </select>
                     <div class="form-group">
                         <label for="comp">Compositor/Arreglista:</label>
-                        <select class="form-control" class="slcomp" name="compositor1">
+                        <select class="form-control" class="slcomp" name="compositor">
                             <% for(var i = compositores.length -1; i >= 0; i--){ %>
                             <option><%= compositores[i].nombre %></option>
-                            <% } %>
-                        </select>
-                        <select class="form-control" class="slcomp" name="compositor2">
-                            <% for(var i = compositores.length -1; i >= 0; i--){ %>
-                            <option><%= compositores[i].nombre %></option>
-                            <% } %>
-                        </select>
-                        <label for="slInstrumentos">Instrumentos:</label>
-                        <select class="form-control" class="slInstrumentos" name="instrumento1">
-                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
-                            <option><%= instrumentos[i].instrumento %></option>
-                            <% } %>
-                        </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumento2">
-                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
-                            <option><%= instrumentos[i].instrumento %></option>
-                            <% } %>
-                        </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumento3">
-                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
-                            <option><%= instrumentos[i].instrumento%></option>
-                            <% } %>
-                        </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumento4">
-                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
-                            <option><%= instrumentos[i].instrumento %></option>
-                            <% } %>
-                        </select>
-                        <select class="form-control" class="slInstrumentos" name="instrumento5">
-                            <% for(var i = instrumentos.length -1; i >= 0; i--){ %>
-                            <option><%= instrumentos[i].instrumento %></option>
                             <% } %>
                         </select>
                     </div>
@@ -120,8 +89,8 @@
     }
 
     body {
-         background-image: url('/images/bg5.jpg');
-        background-repeat:no-repeat;
+        background-image: url('/images/bg5.jpg');
+        background-repeat: no-repeat;
         background-size: cover;
     }
 
