@@ -38,6 +38,7 @@ const mysql = require('mysql');
 const path = require('path');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
+const fs = require('file-system');
 // ----------------------Creating SQL Connection---------------------------------
 
 const db = mysql.createConnection({
@@ -395,10 +396,18 @@ app.post('/addObra', (req, res) => {
                 console.log(err);
                 return;
             }
-        });
 
+            fs.mkdir("./Obras/Repertorio Orquesta/" + data.nombre,{ recursive: true }, (err, ye) => {
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                //console.log("Carpeta Creada");
+            })
+            res.redirect('/view/obra');
+        });
     });
-    res.redirect('/view/obra');
 });
 
 app.get('/addInstrumentType', (req, res) => {
@@ -498,24 +507,7 @@ app.get('/getAll/:table/:col', (req, res) => {
     res.redirect(`/view/${req.params.table}/${req.params.col}`);
 });
 
-//----------------------------Select Single Object----------------------------
-app.get('/getSingle/:table/:col/:val', (req, res) => {
 
-    let table = req.params.table;
-    let col = req.params.col;
-    let val = req.params.val;
-
-    let sql = `SELECT * FROM ${table} WHERE ${col} = '${val}'`;
-    let query = db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        console.log(result);
-    });
-
-    res.redirect('/');
-});
 
 //----------------------------Update Single instrument----------------------------
 app.get('/updateInstruments/:id', (req, res) => {
@@ -634,8 +626,8 @@ app.get('/view/:table/:col', function (req, res, next) {
             return;
         }
 
-        console.log(result);
-        console.log(compositores);
+        //console.log(result);
+        //console.log(compositores);
         if (table === "instrumentos") {
             result.forEach(element => {
                 element.tipo === 1 ? element.tipo = tipos[0].tipo : '0';
@@ -644,7 +636,7 @@ app.get('/view/:table/:col', function (req, res, next) {
             });
         } else if (table === "obras") {
             result.forEach(element => {
-                console.log(element.compositor);
+                //console.log(element.compositor);
                 element.arreglo === 0 ? element.arreglo = "No" : element.arreglo = "Si";
                 element.tonalidad = tonalidades[element.tonalidad - 1].tonalidad;
                 element.genero = generos[element.genero - 1].genero;
