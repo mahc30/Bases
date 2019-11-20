@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Musiquita</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link type="text/css" href="css/style.css" />
+</head>
+
+<body class="text-center">
+    <!----------------------- Form Agregar Obra ----------------------------->
+
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div
+                class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border border-dark form-container rounded shadow p-3 mb-5 bg-white rounded bg-transparent">
+                <form method="POST" action="/agregar/Obra">
+                    <div class="form-group">
+                        <div class="col align-self-center text-center">
+                            <strong>Agregar Obra</strong>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="align-self-center">
+                            <input type="text" class="form-control" name="nombre" id="inst-name"
+                                aria-describedby="helpId" placeholder="Ejemplo: Himno de la Alegría"
+                                required="required">
+                            <small id="helpId" class="form-text text-muted">Nombre de la Obra</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <select class="form-control" class="slcomp" name="compositor">
+                            <% for(var i = 0; i < Compositores.length; i++){ %>
+                            <option name="<%= Compositores[i].ID %>"><%= Compositores[i].Compositor %></option>
+                            <% } %>
+                        </select>
+                        <small id="helpId" class="form-text text-muted">Compositor</small>
+                    </div>
+
+                    <div class="form-group">
+                        <select class="form-control" data-style="btn-info" name="tonalidad">
+                            <% for(var i = 0; i < Tonalidades.length; i++){ %>
+                            <option name="<%= Tonalidades[i].ID %>"><%= Tonalidades[i].Tonalidad %></option>
+                            <% } %>
+                        </select>
+                        <small id="helpId" class="form-text text-muted">Tonalidad</small>
+                    </div>
+
+                    <div class="form-group">
+                        <select class="form-control" data-style="btn-info" name="nivel">
+                            <option name="Orquesta">Orquesta</option>
+                            <option name="Preorquesta">Preorquesta</option>
+                            <option name="Semillero">Semillero</option>
+                        </select>
+                        <small id="helpId" class="form-text text-muted">Nivel</small>
+                    </div>
+
+                    <div class="form-check text-center">
+                        <label class="form-check-label">
+                            <input name="esArreglo" type="checkbox" class="form-check-input" value="esArreglo">Arreglo
+                        </label>
+                    </div>
+
+                    <div class="form-group text-center">
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </div>
+
+                </form>
+
+                <form method="GET" action="/">
+                    <button type="submit" class="btn btn-info">Home</button>
+                </form>
+            </div>
+        </div>
+</body>
+
+
+<style>
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/bg5.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .form-container {
+        padding: 1%;
+    }
+</style>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Musiquita</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link type="text/css" href="css/style.css" />
+</head>
+
+<body>
+    <!----------------------- Form Editar Compositor ----------------------------->
+
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3 border border-dark form-container shadow-lg p-3 mb-5 bg-white rounded bg-transparent">
+                <form method="POST" action="/edit/comp/<%= Compositor[0].ID %>">
+                    <div class="form-group">
+                        <div class="col align-self-center text-center">
+                            <h3><%= Compositor[0].Compositor %></h3>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="align-self-center">
+                            <input type="text" class="form-control" name="nombre" id="inst-name"
+                                aria-describedby="helpId" placeholder="<%= Compositor[0].Compositor %>" required="required">
+                            <small id="helpId" class="form-text text-muted">Nuevo nombre</small>
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-group">
+                        <select class="form-control pais" data-style="btn-info" name="pais">
+                            <% for(var i = 0; i < Result[0].length; i++){ %>
+                            <option name="<% Result[0][i].Pais%>"><%= Result[0][i].Pais %></option>
+                            <% } %>
+                        </select>
+                        <small id="helpId" class="form-text text-muted">Pais</small>
+                    </div>
+
+                    <div class="form-group">
+                        <select class="form-control periodo" data-style="btn-info" name="periodo">
+                            <% for(var i = Result[1].length -1; i >= 0; i--){ %>
+                            <option name="<% Result[1][i].Periodo %>"><%= Result[1][i].Periodo %></option>
+                            <% } %>
+                        </select>
+                        <small id="helpId" class="form-text text-muted">Periodo</small>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <label for="comment">Descripción:</label>
+                        <textarea class="form-control" rows="5" id="descripcion" name="descripcion"><%= Compositor[0].Descripcion %></textarea>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    </div>
+                </form>
+
+                <div class="form-container text-right">
+                    <form method="GET" action="/">
+                        <button type="submit" class="btn btn-info">Home</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<style>
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/bg4.jpg');
+        background-repeat:no-repeat;
+        background-size: cover;
+    }
+
+    .form-container {
+        padding: 2%;
+    }
+</style>
+
+</html>
