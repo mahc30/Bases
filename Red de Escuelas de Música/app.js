@@ -203,13 +203,37 @@ app.get("/view/edit/obra/:id", (req, res) => {
     INNER JOIN tonalidad ON obra.Tonalidad = tonalidad.ID \
     WHERE obra.ID = ${req.params.id}`;
 
-    db.query(sql, (err, result) => {
+    db.query(sql, (err, obra) => {
         if (err) {
             console.log(err);
             return;
         }
 
-        res.render("editObraForm", {result});
+        sql = "SELECT Compositor FROM compositor";
+
+        db.query(sql, (err, compositor) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            sql = "SELECT Tonalidad FROM tonalidad";
+
+            db.query(sql, (err, tonalidad) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                let result = {
+                    result: obra,
+                    compositor: compositor,
+                    tonalidad: tonalidad
+                }
+
+                res.render("editObraForm", result);        
+            });
+        });
     });
 })
 // --------------------------- Ver en Tablas ------------------------
@@ -289,9 +313,43 @@ app.post("/edit/comp/:id", (req, res) => {
     });
 });
 
-app.post("edit/obra/:id", (req, res) => {
+app.post("/edit/obra/:id", (req, res) => {
 
-    console.log(req.body);
+    let id = req.params.id;
+
+    let sql1 = `SELECT ID FROM compositor WHERE Compositor = '${req.body.compositor}'`;
+    let sql2 = `SELECT ID FROM tonalidad WHERE Tonalidad = '${req.body.tonalidad}'`;
+    let sql = sql1 + " ; " + sql2;
+    
+    let esArreglo;
+
+    req.body.esArreglo ? esArreglo = 1 : esArreglo = 0;
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        let data = {
+            Obra: req.body.nombre,
+            Compositor: result[0][0].ID,
+            Tonalidad: result[1][0].ID,
+            Nivel: req.body.nivel,
+            esArreglo: esArreglo
+        }
+
+        sql = `UPDATE obra SET ? WHERE ID = ${id}`;
+
+        db.query(sql, data, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            res.redirect("/table/obra");
+        })
+    });
+    
 });
 
 // -------------------------------------- Eliminar Registros -------------------------------------
