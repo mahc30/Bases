@@ -231,7 +231,7 @@ app.get("/view/edit/obra/:id", (req, res) => {
                     tonalidad: tonalidad
                 }
 
-                res.render("editObraForm", result);        
+                res.render("editObraForm", result);
             });
         });
     });
@@ -320,7 +320,7 @@ app.post("/edit/obra/:id", (req, res) => {
     let sql1 = `SELECT ID FROM compositor WHERE Compositor = '${req.body.compositor}'`;
     let sql2 = `SELECT ID FROM tonalidad WHERE Tonalidad = '${req.body.tonalidad}'`;
     let sql = sql1 + " ; " + sql2;
-    
+
     let esArreglo;
 
     req.body.esArreglo ? esArreglo = 1 : esArreglo = 0;
@@ -347,9 +347,9 @@ app.post("/edit/obra/:id", (req, res) => {
             }
 
             res.redirect("/table/obra");
-        })
+        });
     });
-    
+
 });
 
 // -------------------------------------- Eliminar Registros -------------------------------------
@@ -404,5 +404,33 @@ const deleteFolderRecursive = function (path) {
         fs.rmdirSync(path);
     }
 };
+
+// -------------------------------- PDF Viewer ----------------------------
+
+app.get("/pdf/:id", (req, res) => {
+
+    let id = req.params.id;
+
+    let sql = `SELECT Obra, Nivel FROM obra WHERE ID = ${id}`;
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        let dir = `./Obras/${result[0].Nivel}/${result[0].Obra}/${result[0].Obra}.pdf`;
+        
+        try{
+            res.download(dir);
+
+        }
+        catch(err){
+            console.error();
+        }
+        
+    });
+});
+
 app.listen(3000, '127.0.0.1');
 console.log('Node server running on port 3000');

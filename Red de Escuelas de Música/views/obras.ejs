@@ -22,6 +22,8 @@
       <th>Nivel</th>
       <th>Arreglo</th>
       <th></th>
+      <th></th>
+
       <th><form method="GET" action="/" class="text-right">
         <button type="submit" class="btn btn-info">Home</button>
     </form></th>
@@ -35,6 +37,11 @@
       <td><%= result[i].Tonalidad %></td>
       <td><%= result[i].Nivel%></td>
       <td><%= result[i].EsArreglo %></td>
+      <td>
+        <form method="GET" action="/pdf/<%= result[i].ID %>">
+          <button type="submit" class="btn btn-success">Descargar</button>
+        </form>
+      </td>
       <td>
         <form method="GET" action="/view/edit/obra/<%= result[i].ID %>">
           <button type="submit" class="btn btn-primary">Editar</button>
