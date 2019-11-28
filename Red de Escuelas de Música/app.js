@@ -5,6 +5,8 @@ const path = require('path');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
 const fs = require('file-system');
+const compression = require('compression');
+const helmet = require('helmet');
 
 // ----------------------Creating SQL Connection---------------------------------
 
@@ -28,11 +30,12 @@ db.connect((err) => {
 
 //-----------------------------Creating server---------------------
 const app = express();
-app.use(express.urlencoded({ extended: false }));
+app.use(helmet());
+app.use(compression());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json()); // body en formato json
 app.use('/public', express.static(__dirname + "/public"));
 app.use(express.static('public'));
-app.use(bodyParser.json()); // body en formato json
-app.use(bodyParser.urlencoded({ extended: false })); //body formulario
 app.set('view engine', 'ejs'); // set the view engine to ejs
 
 
@@ -80,6 +83,35 @@ app.get("/view/obra", (req, res) => {
 
             res.render("ObraForm.ejs", { Compositores, Tonalidades });
         })
+    })
+});
+
+app.get("/view/consulta", (req, res) => {
+
+    let sql1 = 'SELECT DISTINCT Compositor.Pais, Compositor.Periodo, pais.Pais, periodo.Periodo \
+    FROM compositor \
+    JOIN pais ON compositor.Pais = pais.ID \
+    INNER JOIN periodo ON compositor.Periodo = periodo.ID';
+
+    let sql2 = 'SELECT obra.*, compositor.Compositor, tonalidad.Tonalidad \
+    FROM obra \
+    INNER JOIN compositor ON obra.Compositor = compositor.ID \
+    INNER JOIN tonalidad ON obra.Tonalidad = tonalidad.ID';
+
+    let sql = sql1 + ";" + sql2;
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        let data = {
+            compositor: result[0],
+            obra: result[1]
+        }
+
+        res.render("consulta.ejs", data);
     })
 });
 // --------------------- Insertar Datos ---------------------
@@ -140,8 +172,6 @@ app.post("/agregar/obra", (req, res) => {
 
         let idComp = result[0][0].ID;
         let idTon = result[1][0].ID;
-
-
 
         sql1 = `INSERT INTO obra (Obra, Compositor, Tonalidad, Nivel, EsArreglo) VALUES ('${obra}', ${idComp}, ${idTon}, '${nivel}', ${esArreglo})`;
         db.query(sql1, (err, result) => {
@@ -251,66 +281,16 @@ app.get('/table/compositor', (req, res) => {
             return;
         }
 
-        console.log(result);
-
         res.render("compositores.ejs", { result });
     });
 });
 
-app.get("/table/obra", (req, res) => {
+app.post('/table/compositor/avanzado', (req, res) => {
 
-    let sql = 'SELECT obra.*, compositor.Compositor, tonalidad.Tonalidad \
-    FROM obra \
-    INNER JOIN compositor ON obra.Compositor = compositor.ID \
-    INNER JOIN tonalidad ON obra.Tonalidad = tonalidad.ID';
+    let nombre = req.body.nombre;
+    let pais = req.body.pais;
+    let periodo = req.body.periodo;
 
-    db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        result.forEach(element => {
-            element.EsArreglo === 0 ? element.EsArreglo = "No" : element.EsArreglo = "Si";
-        });
-
-        res.render("obras", { result });
-    });
-
-});
-
-// ---------------------------------- Edición de Registros ----------------------------------
-
-app.post("/edit/comp/:id", (req, res) => {
-
-    let id = req.params.id;
-    let sql1 = `SELECT ID FROM pais WHERE Pais ='${req.body.pais}'`;
-    let sql2 = `SELECT ID FROM periodo WHERE Periodo = '${req.body.periodo}'`
-    let sql = sql1 + " ; " + sql2;
-
-    db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        let data = {
-            Compositor: req.body.nombre,
-            Pais: result[0][0].ID,
-            Periodo: result[1][0].ID,
-            Descripcion: req.body.descripcion
-        }
-        sql = `UPDATE compositor SET ? WHERE id = ${id}`;
-
-        db.query(sql, data, (err, result) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-
-            res.redirect("/table/compositor")
-        });
-    });
 });
 
 app.post("/edit/obra/:id", (req, res) => {
@@ -405,7 +385,7 @@ const deleteFolderRecursive = function (path) {
     }
 };
 
-// -------------------------------- PDF Viewer ----------------------------
+// -------------------------------- PDF ----------------------------
 
 app.get("/pdf/:id", (req, res) => {
 
@@ -420,15 +400,14 @@ app.get("/pdf/:id", (req, res) => {
         }
 
         let dir = `./Obras/${result[0].Nivel}/${result[0].Obra}/${result[0].Obra}.pdf`;
-        
-        try{
-            res.download(dir);
 
+        try {
+            res.download(dir);
         }
-        catch(err){
+        catch (err) {
             console.error();
         }
-        
+
     });
 });
 

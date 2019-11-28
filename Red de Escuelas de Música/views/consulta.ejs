@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Musiquita</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link type="text/css" href="css/style.css" />
+</head>
+
+<body>
+    <!----------------------- Form Agregar Compositor ----------------------------->
+
+    <div class="container-fluid h-100 bg-transparent">
+        <div
+            class="row  h-25 justify-content-center align-items-center border border-dark shadow-lg bg-transparent rounded">
+            <div class="col align-self-center text-center mb-3">
+                <p class="h1"> Compositor</p>
+            </div>
+            <div class="col align-self-center text-center mb-3">
+                <p class="h1"> Obras </p>
+            </div>
+        </div>
+
+        <div
+            class="row h-50 justify-content-center align-items-center bg-transparent border border-dark border border-dark shadow-lg bg-transparent rounded">
+            <div class="col align-self-center text-center">
+
+                <form method="POST" action="/table/compositor/avanzado">
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox"
+                                onclick="var input = document.getElementById('activatorCompositor-Nombre'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                            <input disabled type="text" class="form-control ml-sm-2 pais" name="nombre"
+                                id="activatorCompositor-Nombre" aria-describedby="helpId"
+                                placeholder="Ejemplo: Daddy Yankee">
+                        </div>
+                        <small id="helpId" class="form-text text-muted">Nombre</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox"
+                                onclick="var input = document.getElementById('activatorCompositor-Pais'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                            <select disabled class="form-control ml-sm-2 pais" data-style="btn-info" name="pais"
+                                id="activatorCompositor-Pais">
+                                <% for(var i = 0; i < compositor.length; i++){ %>
+                                <option name="<% compositor[i].Pais%>"><%= compositor[i].Pais %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <small id="helpId" class="form-text text-muted">Pais</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox"
+                                onclick="var input = document.getElementById('activatorCompositor-Periodo'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                            <select disabled class="form-control periodo ml-sm-2" data-style="btn-info" name="periodo"
+                                id="activatorCompositor-Periodo">
+                                <% for(var i = compositor.length -1; i >= 0; i--){ %>
+                                <option name="<%= compositor[i].Periodo %>"><%= compositor[i].Periodo %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <small id="helpId" class="form-text text-muted">Periodo</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-info">Consultar Compositor</button>
+                </form>
+            </div>
+
+            <div class="col align-self-center text-center">
+                <form method="GET" action="/table/obra/avanzado>">
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox"
+                                onclick="var input = document.getElementById('activatorObra-Compositor'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                            <select disabled class="form-control ml-sm-2 pais" class="slcomp" name="compositor"
+                                id="activatorObra-Compositor">
+                                <% for(var i = 0; i < obra.length; i++){ %>
+                                <option name="<%= obra[i].ID %>"><%= obra[i].Compositor %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <small id="helpId" class="form-text text-muted">Compositor</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox"
+                                onclick="var input = document.getElementById('activatorObra-Tonalidad'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                            <select disabled class="form-control ml-sm-2 pais" data-style="btn-info" name="tonalidad"
+                                id="activatorObra-Tonalidad">
+                                <% for(var i = 0; i < obra.length; i++){ %>
+                                <option name="<%= obra[i].ID %>"><%= obra[i].Tonalidad %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <small id="helpId" class="form-text text-muted">Tonalidad</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox"
+                                onclick="var input = document.getElementById('activatorObra-Nivel'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                            <select disabled class="form-control ml-sm-2 pais" data-style="btn-info" name="nivel"
+                                id="activatorObra-Nivel">
+                                <option name="Orquesta">Orquesta</option>
+                                <option name="Preorquesta">Preorquesta</option>
+                                <option name="Semillero">Semillero</option>
+                            </select>
+                        </div>
+                        <small id="helpId" class="form-text text-muted">Nivel</small>
+                    </div>
+                    <button type="submit" class="btn btn-info">Consultar Obras</button>
+                </form>
+            </div>
+        </div>
+
+        <div
+            class="row h-25 justify-content-center align-items-center border border-dark shadow-lg bg-transparent rounded">
+            <div class="form-container text-right">
+                <form method="GET" action="/">
+                    <button type="submit" class="btn btn-info">Home</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+<style>
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/bg4.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .form-container {
+        padding: 2%;
+    }
+</style>
+<script src="../consulta.js"></script>
+
+</html>
