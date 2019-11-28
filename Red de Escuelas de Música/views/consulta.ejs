@@ -34,7 +34,7 @@
                     <div class="form-group">
                         <div class="form-check form-check-inline">
                             <input type="checkbox"
-                                onclick="var input = document.getElementById('activatorCompositor-Nombre'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true;}" />
+                                onclick="var input = document.getElementById('activatorCompositor-Nombre'); if(this.checked){ input.disabled = false; input.focus();}else{input.disabled=true; input.value ='';}" />
                             <input disabled type="text" class="form-control ml-sm-2 pais" name="nombre"
                                 id="activatorCompositor-Nombre" aria-describedby="helpId"
                                 placeholder="Ejemplo: Daddy Yankee">
@@ -75,7 +75,7 @@
             </div>
 
             <div class="col align-self-center text-center">
-                <form method="GET" action="/table/obra/avanzado>">
+                <form method="POST" action="/table/obra/avanzado">
                     <div class="form-group">
                         <div class="form-check form-check-inline">
                             <input type="checkbox"

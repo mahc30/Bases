@@ -291,7 +291,129 @@ app.post('/table/compositor/avanzado', (req, res) => {
     let pais = req.body.pais;
     let periodo = req.body.periodo;
 
+    let c = 0;
+    let sql = `SELECT compositor.*, pais.Pais, periodo.Periodo \
+    FROM compositor \
+    INNER JOIN pais ON pais.ID = compositor.Pais \
+    INNER JOIN periodo ON periodo.ID = compositor.Periodo`;
+
+    if (pais) {
+        if (c === 0) {
+            sql += " WHERE";
+            c++;
+        }
+        sql += ` pais.Pais = '${pais}'`
+    }
+    if (periodo) {
+        if (c === 0) {
+            sql += " WHERE";
+            c++;
+        }else{
+            sql += " AND";
+        }
+
+        sql += ` periodo.Periodo = '${periodo}'`
+    }
+
+    if (nombre) {
+        if (c === 0) {
+            sql += " WHERE";
+        }else{
+            sql += " AND";
+        }
+
+        sql += ` compositor.Compositor LIKE '%${nombre}%'`;
+    }
+    
+
+    console.log(sql);
+    db.query(sql, (err, result) => {
+        console.log(result);
+
+        res.render("compositores.ejs", { result });
+    })
 });
+
+app.get("/table/obra", (req, res) => {
+
+    let sql = 'SELECT obra.*, compositor.Compositor, tonalidad.Tonalidad \
+    FROM obra \
+    INNER JOIN compositor ON obra.Compositor = compositor.ID \
+    INNER JOIN tonalidad ON obra.Tonalidad = tonalidad.ID';
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        result.forEach(element => {
+            element.EsArreglo === 0 ? element.EsArreglo = "No" : element.EsArreglo = "Si";
+        });
+
+        res.render("obras", { result });
+    });
+
+});
+
+app.post("/table/obra/avanzado", (req, res) => {
+    
+    console.log(req.body);
+
+    let compositor = req.body.compositor;
+    let tonalidad = req.body.tonalidad;
+    let nivel = req.body.nivel;
+
+    let sql = "SELECT obra.*, tonalidad.Tonalidad, compositor.Compositor \
+    FROM obra \
+    INNER JOIN compositor ON compositor.ID = obra.Compositor \
+    INNER JOIN tonalidad ON tonalidad.ID = obra.Tonalidad"
+    
+    let c = 0;
+    if (tonalidad) {
+        if (c === 0) {
+            sql += " WHERE";
+            c++;
+        }
+        sql += ` tonalidad.Tonalidad = '${tonalidad}'`
+    }
+    if (nivel) {
+        if (c === 0) {
+            sql += " WHERE";
+            c++;
+        }else{
+            sql += " AND";
+        }
+
+        sql += ` obra.Nivel = '${nivel}'`
+    }
+    if (compositor) {
+        if (c === 0) {
+            sql += " WHERE";
+            c++;
+        }else{
+            sql += " AND";
+        }
+
+        sql += ` compositor.Compositor = '${compositor}'`
+    }
+
+    db.query(sql, (err,result) => {
+        if(err){
+            console.log(err.message);
+            console.log(err.sql);
+            return;
+        }
+
+        result.forEach(element => {
+            element.EsArreglo === 0 ? element.EsArreglo = "No" : element.EsArreglo = "Si";
+        });
+
+        console.log(result);
+        res.render("obras", { result });
+    })
+});
+// ---------------------------- Editar Registros ---------------------
 
 app.post("/edit/obra/:id", (req, res) => {
 
@@ -318,7 +440,7 @@ app.post("/edit/obra/:id", (req, res) => {
             esArreglo: esArreglo
         }
 
-        sql = `UPDATE obra SET ? WHERE ID = ${id}`;
+        sql = `UPDATE obra SET ? WHERE ID = ${ id } `;
 
         db.query(sql, data, (err, result) => {
             if (err) {
@@ -342,7 +464,7 @@ app.post("/delete/:table/:id", (req, res) => {
 
     if (table === "obra") {
 
-        sql = `SELECT Obra, Nivel FROM obra WHERE ID = ${id}`;
+        sql = `SELECT Obra, Nivel FROM obra WHERE ID = ${ id } `;
         console.log(sql);
         db.query(sql, (err, result) => {
             if (err) {
@@ -351,24 +473,24 @@ app.post("/delete/:table/:id", (req, res) => {
             }
 
             console.log(result);
-            let dir = `./Obras/${result[0].Nivel}/${result[0].Obra}`;
+            let dir = `./ Obras / ${ result[0].Nivel } /${result[0].Obra}`;
 
-            console.log(dir);
+    console.log(dir);
 
-            deleteFolderRecursive(dir);
-        })
+    deleteFolderRecursive(dir);
+})
     }
 
-    sql = `DELETE FROM ${table} WHERE ID = ${id}`;
+sql = `DELETE FROM ${table} WHERE ID = ${id}`;
 
-    db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
+db.query(sql, (err, result) => {
+    if (err) {
+        console.log(err);
+        return;
+    }
 
-        res.redirect(`/table/${table}`);
-    });
+    res.redirect(`/table/${table}`);
+});
 });
 
 const deleteFolderRecursive = function (path) {
