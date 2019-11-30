@@ -88,7 +88,7 @@ app.get("/view/obra", (req, res) => {
 
 app.get("/view/consulta", (req, res) => {
 
-    let sql1 = 'SELECT DISTINCT Compositor.Pais, Compositor.Periodo, pais.Pais, periodo.Periodo \
+    let sql1 = 'SELECT DISTINCT compositor.Pais, compositor.Periodo, pais.Pais, periodo.Periodo \
     FROM compositor \
     JOIN pais ON compositor.Pais = pais.ID \
     INNER JOIN periodo ON compositor.Periodo = periodo.ID';
@@ -270,7 +270,7 @@ app.get("/view/edit/obra/:id", (req, res) => {
 
 app.get('/table/compositor', (req, res) => {
 
-    let sql = 'SELECT Compositor.*, pais.Pais, periodo.Periodo \
+    let sql = 'SELECT compositor.*, pais.Pais, periodo.Periodo \
     FROM compositor \
     INNER JOIN pais ON compositor.Pais = pais.ID \
     INNER JOIN periodo ON compositor.Periodo = periodo.ID';
@@ -533,5 +533,5 @@ app.get("/pdf/:id", (req, res) => {
     });
 });
 
-app.listen(3000, '127.0.0.1');
+app.listen(3000, '0.0.0.0');
 console.log('Node server running on port 3000');
