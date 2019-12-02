@@ -58,7 +58,7 @@ app.get('/view/compositor', (req, res) => {
                 return
             }
 
-            res.render(__dirname + "compositorForm.ejs", { paises, periodos });
+            res.render("compositorForm.ejs", { paises, periodos });
         });
     })
 });
@@ -81,7 +81,7 @@ app.get("/view/obra", (req, res) => {
                 return
             }
 
-            res.render(__dirname + "ObraForm.ejs", { Compositores, Tonalidades });
+            res.render("ObraForm.ejs", { Compositores, Tonalidades });
         })
     })
 });
@@ -111,7 +111,7 @@ app.get("/view/consulta", (req, res) => {
             obra: result[1]
         }
 
-        res.render(__dirname + "consulta.ejs", data);
+        res.render("consulta.ejs", data);
     })
 });
 // --------------------- Insertar Datos ---------------------
@@ -220,7 +220,7 @@ app.get("/view/edit/compositor/:id", (req, res) => {
                 Result: result
             }
 
-            res.render(__dirname + "editCompForm", data);
+            res.render("editCompForm", data);
         });
     });
 });
@@ -261,7 +261,7 @@ app.get("/view/edit/obra/:id", (req, res) => {
                     tonalidad: tonalidad
                 }
 
-                res.render(__dirname + "editObraForm", result);
+                res.render("editObraForm", result);
             });
         });
     });
@@ -281,7 +281,7 @@ app.get('/table/compositor', (req, res) => {
             return;
         }
 
-        res.render(__dirname + "compositores.ejs", { result });
+        res.render("compositores.ejs", { result });
     });
 });
 
@@ -330,7 +330,7 @@ app.post('/table/compositor/avanzado', (req, res) => {
     db.query(sql, (err, result) => {
         console.log(result);
 
-        res.render(__dirname + "compositores.ejs", { result });
+        res.render("compositores.ejs", { result });
     })
 });
 
@@ -351,7 +351,7 @@ app.get("/table/obra", (req, res) => {
             element.EsArreglo === 0 ? element.EsArreglo = "No" : element.EsArreglo = "Si";
         });
 
-        res.render(__dirname + "obras", { result });
+        res.render("obras", { result });
     });
 
 });
@@ -410,7 +410,7 @@ app.post("/table/obra/avanzado", (req, res) => {
         });
 
         console.log(result);
-        res.render(__dirname + "obras", { result });
+        res.render("obras", { result });
     })
 });
 // ---------------------------- Editar Registros ---------------------
