@@ -81,7 +81,7 @@ app.get("/view/obra", (req, res) => {
                 return
             }
 
-            res.render("ObraForm.ejs", { Compositores, Tonalidades });
+            res.render("obraForm.ejs", { Compositores, Tonalidades });
         })
     })
 });
