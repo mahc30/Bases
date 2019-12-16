@@ -11,67 +11,120 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link  type="text/css" href="css/style.css" />
+    <link type="text/css" href="css/style.css" />
 </head>
 
 <body>
 
-    <ul class="nav nav-pills">
-        <li class="nav-item">
-            <a class="nav-link active" href="/">Home</a>
-        </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Formularios</a>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="/view/compositor">Compositores</a>
-                <div class="dropdown-divider"></div> 
-                <a class="dropdown-item" href="/view/obra">Obras</a>
+    <div class="row h-100 container mx-auto pt-5">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col text-center">
+                    <img src="./images/red-logo.png" alt="" srcset="">
+                </div>
             </div>
-        </li>
-        
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Consultas</a>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="/table/compositor">Compositores</a>
-                <a class="dropdown-item" href="/table/obra">Obras</a>
-                <div class="dropdown-divider"></div> 
-                <a class="dropdown-item" href="/view/consulta">Personalizado</a>
 
+            <div class="row pt-3 pb-3">
+                <p class="h2 mx-auto font-weight-bold">Repertorio Escuela Santa Fé</p>
             </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="http://www.redmusicamedellin.org/">Red</a>
-        </li>
-    </ul>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
+            <div class="row border border-top-0 border-dark shadow-lg">
+                <div class="col border border-dark border-bottom-0">
+                    <div class="row">
+                        <div class="col text-center p-2 bg-info">
+                            <p class="h5 font-weight-bold"> Agregar </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-center p-3 border border-dark border-left-0">
+                            <a class="text-dark" href="/view/compositor">Compositor</a>
+                        </div>
+                        <div class="col text-center p-3 border border-dark border-right-0">
+                            <a class="text-dark" href="/view/obra">Obra</a>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="col text-center border border-dark border-left-0">
+                    <div class="row">
+                        <div class="col text-center p-2 bg-info">
+                            <p class="h5 font-weight-bold"> Consultar </p>
+                        </div>
+                    </div>
+
+                    <div class="row pt-3 border border-dark border-right-0 border-left-0 border-bottom-0">
+                        <a class="mx-auto text-dark" href="/view/consulta">Personalizado</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 
 <style>
-        html,
-        body {
-            height: 100vh;
-        }
-    
-        body {
-            background-image: url('/images/bg3.jpg');
-        background-repeat:no-repeat;
+    html,
+    body {
+        height: 100vh;
+    }
+
+    body {
+        background-image: url('/images/bg6.jpg');
+        background-repeat: no-repeat;
         background-size: cover;
-        }
-    
-        .form-container {
-            padding: 2%;
-        }
-    </style>
-    
+    }
+
+    .nav-custom {
+        height: 10vh;
+    }
+
+    .margin-custom {
+        margin-right: 10%;
+    }
+
+    .link {
+        padding-top: 5%;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .link-one {
+        color: white;
+    }
+
+    img {
+        max-height: 256px;
+        max-width: 420px;
+    }
+
+
+    a {
+        background:
+            linear-gradient(to right,
+                var(--mainColor) 0%,
+                var(--mainColor) 5px,
+                transparent 5px);
+        background-repeat: repeat-x;
+        background-size: 100%;
+        color: #000;
+        padding-left: 10px;
+        text-decoration: none;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-weight: bold;
+    }
+
+    a:hover {
+        background:
+            linear-gradient(to right,
+                var(--mainColor) 0%,
+                var(--mainColor) 5px,
+                transparent);
+    }
+
+    :root {
+        --mainColor: #28a745;
+    }
+</style>
+
 </html>

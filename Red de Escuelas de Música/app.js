@@ -328,7 +328,7 @@ app.post('/table/compositor/avanzado', (req, res) => {
 
     console.log(sql);
     db.query(sql, (err, result) => {
-        console.log(result);
+        //console.log(result);
 
         res.render("compositores.ejs", { result });
     })
