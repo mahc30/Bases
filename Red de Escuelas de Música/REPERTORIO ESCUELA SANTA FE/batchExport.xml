@@ -1,0 +1,23 @@
+Batch Process Folder
+//Process all open docs
+
+Graphics tool
+Menu item "Export Pages"
+
+//Popup "TIFF"
+//Popup "PICT"
+//Popup "EPS"
+Popup "PDF"
+
+Check "all"
+Check "Generate Names From:"
+Type 1200 near "Resolution:"
+
+//Check "Include Fonts"
+//Check "Allow Transparency"
+
+Press "OK"
+//expect to return	//For save as PDF
+Close
+
+End
