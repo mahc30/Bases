@@ -204,7 +204,7 @@ BEGIN
 	
 	SET l_valor_factura = l_consumo * (1 - l_subsidio);
 	RETURN l_valor_factura;
-END
+END $$
 DELIMITER ;
 
 SELECT f_calcula_factura(1,1,1);
