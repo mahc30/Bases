@@ -12,10 +12,9 @@ CREATE TABLE estratos
 	estrato_desc VARCHAR(28) NOT NULL
 );
 ALTER TABLE estratos ADD CONSTRAINT estratos_pk PRIMARY KEY(estrato_codigo);
-
-COMMENT ON TABLE estratos IS 'Estratos Socioeconómicos';
-COMMENT ON COLUMN estratos.estrato_codigo IS 'Codigo del Estrato';
-COMMENT ON COLUMN estratos.estrato_desc IS 'Descripción del Estrato';
+ALTER TABLE estratos COMMENT 'Estratos Socioeconómicos';
+ALTER TABLE estratos CHANGE estrato_codigo estrato_codigo INT NOT NULL COMMENT "Código del Estrato";
+ALTER TABLE estratos CHANGE estrato_desc estrato_desc VARCHAR(28) NOT NULL COMMENT 'Descripción del Estrato';
 
 INSERT INTO estratos (estrato_codigo, estrato_desc) VALUES (1, "Estrato 1");
 INSERT INTO estratos (estrato_codigo, estrato_desc) VALUES (2, "Estrato 2");
@@ -34,9 +33,9 @@ CREATE TABLE municipios
 
 ALTER TABLE municipios ADD CONSTRAINT municipios_pk PRIMARY KEY(mpio_codigo);
 
-COMMENT ON TABLE municipios IS 'Municipios del Área Metropolitana';
-COMMENT ON COLUMN municipios.mpio_codigo IS 'Codigo del Municipio';
-COMMENT ON COLUMN municipios.mpio_desc IS 'Descripción del Municipio';
+ALTER TABLE municipios COMMENT 'Municipios del Área Metropolitana';
+ALTER TABLE municipios CHANGE mpio_codigo mpio_codigo INT NOT NULL COMMENT "Código del Municipio";
+ALTER TABLE municipios CHANGE mpio_desc mpio_desc VARCHAR(28) NOT NULL COMMENT "Descripción del Municipio";
 
 INSERT INTO municipios(mpio_codigo, mpio_desc) VALUES (1, "Medellín");
 --Tabla Hogares
@@ -171,15 +170,19 @@ CREATE OR REPLACE VIEW total_hogares AS (
 -- ===============================
 -- Calcular el valor facturado de un hogar por año y mes
 DELIMITER $$
-CREATE OR REPLACE FUNCTION f_calcula_factura(p_hogar INT, p_año INT, p_mes INT) RETURNS FLOAT DETERMINISTIC
+CREATE OR REPLACE FUNCTION f_calcula_factura(
+p_hogar INT,
+p_año INT,
+p_mes INT)
+RETURNS FLOAT DETERMINISTIC
 
 BEGIN
-	DECLARE l_municipio INT DEFAULT 0;
-	DECLARE l_estrato INT DEFAULT 0;
-	DECLARE l_tarifa INT DEFAULT 0;
-	DECLARE l_consumo FLOAT DEFAULT 0;
-	DECLARE l_subsidio FLOAT DEFAULT 0;
-	DECLARE l_valor_factura FLOAT DEFAULT 0;
+DECLARE l_municipio INT DEFAULT 0;
+DECLARE l_estrato INT DEFAULT 0;
+DECLARE l_tarifa INT DEFAULT 0;
+DECLARE l_consumo FLOAT DEFAULT 0;
+DECLARE l_subsidio FLOAT DEFAULT 0;
+DECLARE l_valor_factura FLOAT DEFAULT 0;
 
 	-- Obtener el municipio
 	SELECT hogar_mpio INTO l_municipio FROM hogares WHERE hogar_codigo = p_hogar;
@@ -216,15 +219,16 @@ SELECT DISTINCT
 FROM hogares h JOIN estratos e ON e.estrato_codigo = h.hogar_estrato
 	JOIN municipios m ON m.mpio_codigo = h.hogar_mpio;
 
-
+USE INFORMATION_SCHEMA;
 -- Comentarios de Tablas
 SELECT table_comment 
     FROM INFORMATION_SCHEMA.TABLES 
     WHERE table_schema='tabd' ;
 
 -- Comentarios de Columnas
-SELECT * 
-FROM USER_COL_COMMENTS;
+select `column_name`, `column_type`, `column_default`, `column_comment`
+from `information_schema`.`COLUMNS` 
+WHERE table_schema='tabd' ;
 
 --Sentencias de Validación del modelo de datos
 SELECT OBJECT_NAME, OBJECT_TYPE, STATUS
