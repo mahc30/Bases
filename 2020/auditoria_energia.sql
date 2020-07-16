@@ -11,10 +11,14 @@ CREATE TABLE estratos
 	estrato_codigo INT NOT NULL,
 	estrato_desc VARCHAR(28) NOT NULL
 );
-ALTER TABLE estratos ADD CONSTRAINT estratos_pk PRIMARY KEY(estrato_codigo);
+
+--Comentarios Estratos
 ALTER TABLE estratos COMMENT 'Estratos Socioeconómicos';
 ALTER TABLE estratos CHANGE estrato_codigo estrato_codigo INT NOT NULL COMMENT "Código del Estrato";
 ALTER TABLE estratos CHANGE estrato_desc estrato_desc VARCHAR(28) NOT NULL COMMENT 'Descripción del Estrato';
+
+--Constrains Estratos
+ALTER TABLE estratos ADD CONSTRAINT estratos_pk PRIMARY KEY(estrato_codigo);
 
 INSERT INTO estratos (estrato_codigo, estrato_desc) VALUES (1, "Estrato 1");
 INSERT INTO estratos (estrato_codigo, estrato_desc) VALUES (2, "Estrato 2");
@@ -31,13 +35,17 @@ CREATE TABLE municipios
 	mpio_desc VARCHAR(28) NOT NULL
 );
 
-ALTER TABLE municipios ADD CONSTRAINT municipios_pk PRIMARY KEY(mpio_codigo);
-
+-- Comentarios Municipios
 ALTER TABLE municipios COMMENT 'Municipios del Área Metropolitana';
 ALTER TABLE municipios CHANGE mpio_codigo mpio_codigo INT NOT NULL COMMENT "Código del Municipio";
 ALTER TABLE municipios CHANGE mpio_desc mpio_desc VARCHAR(28) NOT NULL COMMENT "Descripción del Municipio";
 
+-- Constrains Municipios
+ALTER TABLE municipios ADD CONSTRAINT municipios_pk PRIMARY KEY(mpio_codigo);
+
 INSERT INTO municipios(mpio_codigo, mpio_desc) VALUES (1, "Medellín");
+
+
 --Tabla Hogares
 CREATE TABLE hogares(
 	hogar_codigo INT NOT NULL,
@@ -45,6 +53,13 @@ CREATE TABLE hogares(
 	hogar_mpio INT NOT NULL
 );
 
+-- Comentarios Hogares
+ALTER TABLE hogares COMMENT 'Hogares del Área Metropolitana';
+ALTER TABLE hogares CHANGE hogar_codigo hogar_codigo INT NOT NULL COMMENT "Código del Hogar";
+ALTER TABLE hogares CHANGE hogar_estrato hogar_estrato INT NOT NULL COMMENT "Código del Estrato al que pertenece el Hogar";
+ALTER TABLE hogares CHANGE hogar_mpio hogar_mpio INT NOT NULL COMMENT "Código del Municipio Al que Pertenece el Hogar";
+
+-- Constrains Hogares
 ALTER TABLE hogares ADD CONSTRAINT hogares_pk PRIMARY KEY(hogar_codigo);
 ALTER TABLE hogares ADD CONSTRAINT hogar_estrato_fk FOREIGN KEY (hogar_estrato) REFERENCES estratos (estrato_codigo);
 ALTER TABLE hogares ADD CONSTRAINT hogar_mpio_fk FOREIGN KEY (hogar_mpio) REFERENCES municipios (mpio_codigo);
@@ -60,19 +75,21 @@ CREATE TABLE tarifas(
 	tarifa_valor float NOT NULL
 );
 
-ALTER TABLE tarifas ADD CONSTRAINT tarifas_pk PRIMARY KEY(tarifa_codigo);
-ALTER TABLE tarifas ADD CONSTRAINT tarifas_estrato_pk PRIMARY KEY(tarifa_estrato);
-ALTER TABLE tarifas ADD CONSTRAINT tarifas_mpio_pk PRIMARY KEY(tarifa_mpio);
-ALTER TABLE tarifas ADD CONSTRAINT tarifas_año_pk PRIMARY KEY (año);
+-- Comentarios Tarifas
+ALTER TABLE tarifas COMMENT 'Tarifas para los municipios y estratos';
+ALTER TABLE tarifas CHANGE tarifa_codigo tarifa_codigo INT NOT NULL COMMENT "Código de la Tarifa";
+ALTER TABLE tarifas CHANGE tarifa_mpio tarifa_mpio INT NOT NULL COMMENT "Código del Municipio de la Tarifa";
+ALTER TABLE tarifas CHANGE tarifa_estrato tarifa_estrato INT NOT NULL COMMENT "Código del Estrato de la Tarifa";
+ALTER TABLE tarifas CHANGE tarifa_año tarifa_año INT NOT NULL COMMENT "Código del Año de la Tarifa";
+ALTER TABLE tarifas CHANGE tarifa_valor tarifa_valor FLOAT NOT NULL COMMENT "Valor de la Tarifa";
+
+-- Constrains Tarifas
+ALTER TABLE tarifas ADD CONSTRAINT tarifas_pk PRIMARY KEY(tarifa_codigo, tarifa_estrato, tarifa_mpio, año);
 ALTER TABLE tarifas ADD CONSTRAINT tarifa_mpio_fk FOREIGN KEY (tarifa_mpio) REFERENCES municipios (mpio_codigo);
 ALTER TABLE tarifas ADD CONSTRAINT tarifa_estrato_fk FOREIGN KEY (tarifa_estrato) REFERENCES estratos (estrato_codigo);
 ALTER TABLE tarifas ADD CONSTRAINT tarifa_año_fk FOREIGN KEY (tarifa_año) REFERENCES años (año);
 
 INSERT INTO tarifas (tarifa_codigo, tarifa_mpio, tarifa_estrato, tarifa_ano, tarifa_valor) VALUES (1, 3, 1);
-
-COMMENT ON TABLE tarifas IS 'Hogares del Área Metropolitana';
-COMMENT ON COLUMN tarifas.hogar_codigo IS 'Codigo del Municipio';
-COMMENT ON COLUMN tarifas.hogar_desc IS 'Descripción del Municipio';
 
 SELECT * FROM tarifas;
 
@@ -85,6 +102,15 @@ CREATE TABLE consumos	(
 	kwh float NOT NULL
 );
 
+-- Comentarios Consumos
+ALTER TABLE consumos COMMENT 'Consumos en kwh de los hogares';
+ALTER TABLE consumos CHANGE consumo_codigo consumo_codigo INT NOT NULL COMMENT "Código del Consumo";
+ALTER TABLE consumos CHANGE consumo_hogar consumo_hogar INT NOT NULL COMMENT "Código del Hogar";
+ALTER TABLE consumos CHANGE año año INT NOT NULL COMMENT "Año del Consumo";
+ALTER TABLE consumos CHANGE mes mes INT NOT NULL COMMENT "Mes del Consumo";
+ALTER TABLE consumos CHANGE kwh kwh FLOAT NOT NULL COMMENT "Consumo en kwh";
+
+-- Constrains Consumos
 ALTER TABLE consumos ADD CONSTRAINT consumo_pk PRIMARY KEY(consumo_codigo);
 ALTER TABLE consumos ADD CONSTRAINT consumo_hogar_fk FOREIGN KEY (consumo_hogar) REFERENCES hogares (hogar_codigo);
 ALTER TABLE consumos ADD CONSTRAINT consumo_año_fk FOREIGN KEY (año) REFERENCES años (año);
@@ -99,9 +125,16 @@ CREATE TABLE subsidios(
 	subsidio FLOAT NOT null
 );
 
-ALTER TABLE subsidios ADD CONSTRAINT subsidio_pk PRIMARY KEY (subsidio_codigo);
-ALTER TABLE subsidios ADD CONSTRAINT subsidios_año_pk PRIMARY KEY (año);
-ALTER TABLE subsidios ADD CONSTRAINT subsidios_mes_pk PRIMARY KEY (mes);
+-- Comentarios Subsidios
+ALTER TABLE subsidios COMMENT 'Subsidios para el pago de la factura';
+ALTER TABLE subsidios CHANGE subsidio_codigo subsidio_codigo INT NOT NULL COMMENT "Código del Subsidio";
+ALTER TABLE subsidios CHANGE subsidio_estrato subsidio_estrato INT NOT NULL COMMENT "Código del Estrato del Subsidio";
+ALTER TABLE subsidios CHANGE año año INT NOT NULL COMMENT "Año del Subsidio";
+ALTER TABLE subsidios CHANGE mes mes INT NOT NULL COMMENT "Mes del Subsidio";
+ALTER TABLE subsidios CHANGE subsidio subsidio FLOAT NOT NULL COMMENT "Valor del Subsidio, de 0 a 1";
+
+-- Constrains Subsidios
+ALTER TABLE subsidios ADD CONSTRAINT subsidio_pk PRIMARY KEY (subsidio_codigo, año, mes);
 ALTER TABLE subsidios ADD CONSTRAINT subsidio_estrato_fk FOREIGN KEY (subsidio_estrato) REFERENCES estratos (estrato_codigo);
 ALTER TABLE subsidios ADD CONSTRAINT subsidios_año_fk FOREIGN KEY (año) REFERENCES años (año);
 ALTER TABLE subsidios ADD CONSTRAINT subsidios_mes_fk FOREIGN KEY (mes) REFERENCES meses (mes);
@@ -110,9 +143,16 @@ ALTER TABLE subsidios ADD CONSTRAINT subsidios_mes_fk FOREIGN KEY (mes) REFERENC
 CREATE TABLE facturaciones(
 	facturacion_codigo INT NOT NULL,
 	consumo INT NOT NULL,
-	valor DOUBLE NOT NULL
+	valor FLOAT NOT NULL
 );
 
+-- Comentarios Facturaciones
+ALTER TABLE facturaciones COMMENT 'Facturas';
+ALTER TABLE facturaciones CHANGE facturacion_codigo facturacion_codigo INT NOT NULL COMMENT "Código de la Factura";
+ALTER TABLE facturaciones CHANGE consumo consumo INT NOT NULL COMMENT "Código del Consumo de la Factura";
+ALTER TABLE facturaciones CHANGE valor valor FLOAT NOT NULL COMMENT "Valor de la Factura";
+
+-- Constrains Facturaciones
 ALTER TABLE facturaciones ADD CONSTRAINT facturacion_pk PRIMARY KEY(facturacion_codigo);
 ALTER TABLE facturaciones ADD CONSTRAINT facturacion_consumo_fk FOREIGN KEY (consumo) REFERENCES consumos (consumo_codigo);
 
@@ -122,6 +162,12 @@ CREATE TABLE años(
 	descripcion VARCHAR(28)
 );
 
+-- Comentarios Años
+ALTER TABLE años COMMENT 'Años';
+ALTER TABLE años CHANGE año año INT NOT NULL COMMENT "Código del Año";
+ALTER TABLE años CHANGE descripcion descripcion VARCHAR(28) NOT NULL COMMENT "Descripcion del Año";
+
+-- Constrains Años
 ALTER TABLE años ADD CONSTRAINT años_año_pk PRIMARY KEY (año);
 
 -- Tabla meses
@@ -130,8 +176,13 @@ CREATE TABLE meses(
 	año INT NOT null
 );
 
-ALTER TABLE meses ADD CONSTRAINT meses_mes_pk PRIMARY KEY (mes);
-ALTER TABLE meses ADD CONSTRAINT meses_año_pk PRIMARY KEY (año);
+-- Comentarios Meses
+ALTER TABLE meses COMMENT 'Meses';
+ALTER TABLE meses CHANGE año año INT NOT NULL COMMENT "Código del Año";
+ALTER TABLE meses CHANGE mes mes INT NOT NULL COMMENT "Mes del Año";
+
+-- Constrains Meses
+ALTER TABLE meses ADD CONSTRAINT meses_mes_pk PRIMARY KEY (mes, año);
 ALTER TABLE meses ADD CONSTRAINT meses_año_fk FOREIGN KEY (año) REFERENCES años(año);
 
 -- Views
