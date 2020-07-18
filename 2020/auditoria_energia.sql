@@ -1,12 +1,13 @@
 -- Julio 9 TABD
 -- Auditoría de Energía
 -- Mariadb
--- Usuario/esquema: audit_energía
+-- Usuario/esquema: audit_energía@tabd
 
 -- ====================
 -- Creación de Tablas
 -- ====================
 
+USE tabd;
 --Tabla: Estratos
 CREATE TABLE estratos
 (
@@ -339,14 +340,12 @@ COMMIT;
 END$$
 DELIMITER ;
 
--- Procedimiento Actualizar Facturas Municipio
+-- Procedimiento Actualizar Facturas x Municipio
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE p_actualizar_facturas_municipio(
 IN p_municipio INT, 
 IN p_año INT,
-IN p_mes INT,
-IN p_hogar INT,
-IN p_valor FLOAT
+IN p_mes INT
 )
 BEGIN 
 DECLARE l_cursor_finished INT DEFAULT 0;
@@ -379,7 +378,97 @@ CLOSE hogares_c;
 END$$
 DELIMITER ;
 
+-- Procedimiento Actualizar Facturas x Estrato
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE p_actualizar_facturas_estrato(
+IN p_estrato INT, 
+IN p_año INT,
+IN p_mes INT
+)
+BEGIN 
+DECLARE l_cursor_finished INT DEFAULT 0;
+DECLARE l_hogar INT DEFAULT 0;
+DECLARE l_valor_factura FLOAT DEFAULT 0;
+
+-- Cursor de Hogares para el municipio
+DECLARE hogares_c  CURSOR FOR
+	SELECT hogar_codigo 
+	FROM hogares 
+	WHERE hogar_estrato = p_estrato;
+
+-- NOT FOUND handler
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET l_cursor_finished = 1;
+        
+OPEN hogares_c;
+getValores: LOOP 
+	FETCH hogares_c INTO l_hogar;
+	IF l_cursor_finished = 1 THEN 
+			LEAVE getValores;
+	END IF;
+	SET @l_valor_factura = f_calcula_factura(l_hogar, p_año, p_mes);
+	
+	-- Insertar/Actualizar Facturas
+	CALL p_actualizar_registro_factura(l_hogar, p_año, p_mes, l_valor_factura);
+	
+END LOOP getValores;	
+CLOSE hogares_c;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE p_actualizar_facturas_hogar(
+IN p_hogar INT 
+)
+
+BEGIN 
+DECLARE l_cursor_finished INT DEFAULT 0;
+DECLARE l_consumo INT DEFAULT 0;
+DECLARE l_valor_factura FLOAT DEFAULT 0;
+
+-- Cursor de Hogares para el municipio
+DECLARE consumos_c  CURSOR FOR
+	SELECT c.`año`, c.mes
+	FROM consumos c
+	WHERE c.consumo_hogar = p_hogar;
+
+-- NOT FOUND handler
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET l_cursor_finished = 1;
+        
+OPEN consumos_c;
+getValores: LOOP 
+	FETCH consumos_c INTO l_consumo;
+	IF l_cursor_finished = 1 THEN 
+			LEAVE getValores;
+	END IF;
+	
+	/*
+	El video se corta y no estoy seguro de que hace el profe aquí :c
+	SET @l_valor_factura = f_calcula_factura(p_hogar, p_año, p_mes);
+	
+	-- Insertar/Actualizar Facturas
+	CALL p_actualizar_registro_factura(l_hogar, p_año, p_mes, l_valor_factura);
+	*/
+END LOOP getValores;	
+CLOSE consumos_c;
+
+END$$
+DELIMITER ;
+-- Procedimiento para ejecutar las facturas de los hogares
+-- de un municipio, por año y por mes
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE p_ejecutar_facturas_hogares()
+BEGIN 
+DECLARE l_meses INT DEFAULT 1;
+	while l_meses <=12 DO 
+			call p_actualizar_facturas_municipio(1, 1, l_meses);
+			SET l_meses = l_meses + 1;
+		END while;
+END $$
+DELIMITER ;
+
 -- Custom queries
+-- Ver Hogares
 SELECT DISTINCT 
 	h.hogar_codigo,
 	e.estrato_desc,
@@ -387,7 +476,20 @@ SELECT DISTINCT
 FROM hogares h JOIN estratos e ON e.estrato_codigo = h.hogar_estrato
 	JOIN municipios m ON m.mpio_codigo = h.hogar_mpio;
 
-USE INFORMATION_SCHEMA;
+-- Consumos Pendientes Por Facturar
+SELECT DISTINCT año, mes, COUNT(consumo_hogar) total_hogares
+FROM consumos
+WHERE(consumo_hogar,año,mes) NOT IN 
+	(SELECT DISTINCT hogar,año,mes
+	 FROM facturaciones)
+GROUP BY año,mes 
+ORDER BY 1,2,3;
+
+
+-- ==================================================
+--		Sentencias de Validación del modelo de datos
+-- ==================================================
+
 -- Comentarios de Tablas
 SELECT table_comment 
     FROM INFORMATION_SCHEMA.TABLES 
@@ -398,21 +500,13 @@ select `column_name`, `column_type`, `column_default`, `column_comment`
 from `information_schema`.`COLUMNS` 
 WHERE table_schema='tabd' ;
 
---Sentencias de Validación del modelo de datos
-SELECT OBJECT_NAME, OBJECT_TYPE, STATUS
-FROM user_objects;
-
-
-
 -- Sentencia para ver los constraints
-USE INFORMATION_SCHEMA;
 SELECT TABLE_NAME,
        COLUMN_NAME,
        CONSTRAINT_NAME,
        REFERENCED_TABLE_NAME,
        REFERENCED_COLUMN_NAME
-FROM KEY_COLUMN_USAGE
+FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE TABLE_SCHEMA = "tabd" 
       AND REFERENCED_COLUMN_NAME IS NOT NULL;
 
-USE tabd;
