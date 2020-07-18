@@ -23,12 +23,14 @@ ALTER TABLE estratos CHANGE descripcion descripcion VARCHAR(28) NOT NULL COMMENT
 # Constrains Estratos
 ALTER TABLE estratos ADD CONSTRAINT estratos_pk PRIMARY KEY(estrato);
 
+/*
 INSERT INTO estratos (estrato, descripcion) VALUES (1, "Estrato 1");
 INSERT INTO estratos (estrato, descripcion) VALUES (2, "Estrato 2");
 INSERT INTO estratos (estrato, descripcion) VALUES (3, "Estrato 3");
 INSERT INTO estratos (estrato, descripcion) VALUES (4, "Estrato 4");
 INSERT INTO estratos (estrato, descripcion) VALUES (5, "Estrato 5");
 INSERT INTO estratos (estrato, descripcion) VALUES (6, "Estrato 6");
+*/
 
 SELECT * FROM estratos;
 
@@ -47,7 +49,7 @@ ALTER TABLE municipios CHANGE descripcion descripcion VARCHAR(28) NOT NULL COMME
 # Constrains Municipios
 ALTER TABLE municipios ADD CONSTRAINT municipios_pk PRIMARY KEY(municipio);
 
-INSERT INTO municipios(municipio, descripcion) VALUES (1, "Medellín");
+# INSERT INTO municipios(municipio, descripcion) VALUES (1, "Medellín");
 SELECT * FROM municipios;
 
 # Tabla Hogares
@@ -69,7 +71,7 @@ ALTER TABLE hogares ADD CONSTRAINT hogares_pk PRIMARY KEY(hogar);
 ALTER TABLE hogares ADD CONSTRAINT estrato_fk FOREIGN KEY (estrato) REFERENCES estratos (estrato);
 ALTER TABLE hogares ADD CONSTRAINT municipio_fk FOREIGN KEY (municipio) REFERENCES municipios (municipio);
 
-INSERT INTO hogares (hogar, estrato, municipio) VALUES (1, 3, 1);
+# INSERT INTO hogares (hogar, estrato, municipio) VALUES (1, 3, 1);
 SELECT * FROM hogares;
 
 # Tabla Años
@@ -77,6 +79,7 @@ CREATE TABLE años(
 	año INT NOT NULL,
 	descripcion VARCHAR(28)
 );
+
 # Comentarios Años
 ALTER TABLE años COMMENT 'Años';
 ALTER TABLE años CHANGE año año INT NOT NULL COMMENT "Código del Año";
@@ -102,7 +105,6 @@ ALTER TABLE meses ADD CONSTRAINT meses_año_fk FOREIGN KEY (año) REFERENCES añ
 
 # Tabla Tarifas
 CREATE TABLE tarifas(
-	tarifa_codigo INT NOT NULL,
 	municipio INT NOT NULL,
 	estrato INT NOT NULL,
 	año int NOT NULL,
@@ -111,25 +113,21 @@ CREATE TABLE tarifas(
 
 # Comentarios Tarifas
 ALTER TABLE tarifas COMMENT 'Tarifas para los municipios y estratos';
-ALTER TABLE tarifas CHANGE tarifa_codigo tarifa_codigo INT NOT NULL COMMENT "Código de la Tarifa";
 ALTER TABLE tarifas CHANGE municipio municipio INT NOT NULL COMMENT "Código del Municipio de la Tarifa";
 ALTER TABLE tarifas CHANGE estrato estrato INT NOT NULL COMMENT "Código del Estrato de la Tarifa";
 ALTER TABLE tarifas CHANGE año año INT NOT NULL COMMENT "Código del Año de la Tarifa";
 ALTER TABLE tarifas CHANGE valor valor FLOAT NOT NULL COMMENT "Valor de la Tarifa";
 
 # Constrains Tarifas
-ALTER TABLE tarifas ADD CONSTRAINT tarifas_pk PRIMARY KEY(municipio, estrato,  año);
+ALTER TABLE tarifas ADD CONSTRAINT tarifas_pk PRIMARY KEY( estrato, municipio, año);
 ALTER TABLE tarifas ADD CONSTRAINT tarifa_municipio_fk FOREIGN KEY (municipio) REFERENCES municipios(municipio);
 ALTER TABLE tarifas ADD CONSTRAINT tarifa_estrato_fk FOREIGN KEY (estrato) REFERENCES estratos(estrato);
 ALTER TABLE tarifas ADD CONSTRAINT año_fk FOREIGN KEY (año) REFERENCES años (año);
-
-INSERT INTO tarifas (tarifa_codigo, municipio, estrato, tarifa_ano, valor) VALUES (1, 3, 1);
 
 SELECT * FROM tarifas;
 
 # Tabla Consumo
 CREATE TABLE consumos	(
-	consumo_codigo INT NOT NULL,
 	hogar INT NOT NULL,
 	año INT NOT NULL,
 	mes INT NOT NULL,
@@ -138,7 +136,6 @@ CREATE TABLE consumos	(
 
 # Comentarios Consumos
 ALTER TABLE consumos COMMENT 'Consumos en kwh de los hogares';
-ALTER TABLE consumos CHANGE consumo_codigo consumo_codigo INT NOT NULL COMMENT "Código del Consumo";
 ALTER TABLE consumos CHANGE hogar hogar INT NOT NULL COMMENT "Código del Hogar";
 ALTER TABLE consumos CHANGE año año INT NOT NULL COMMENT "Año del Consumo";
 ALTER TABLE consumos CHANGE mes mes INT NOT NULL COMMENT "Mes del Consumo";
@@ -148,11 +145,10 @@ ALTER TABLE consumos CHANGE kwh kwh FLOAT NOT NULL COMMENT "Consumo en kwh";
 ALTER TABLE consumos ADD CONSTRAINT consumo_pk PRIMARY KEY(hogar, año, mes);
 ALTER TABLE consumos ADD CONSTRAINT hogar_fk FOREIGN KEY (hogar) REFERENCES hogares (hogar);
 ALTER TABLE consumos ADD CONSTRAINT consumo_año_fk FOREIGN KEY (año) REFERENCES años (año);
-ALTER TABLE consumos ADD CONSTRAINT consumo_mes_fk FOREIGN KEY (mes) REFERENCES meses (mes)
+ALTER TABLE consumos ADD CONSTRAINT consumo_mes_fk FOREIGN KEY (mes) REFERENCES meses (mes);
 
 # Tabla subsidios
 CREATE TABLE subsidios(
-	subsidio_codigo INT NOT NULL,
 	año INT NOT NULL,
 	mes INT NOT NULL,
 	estrato INT NOT NULL,
@@ -161,14 +157,13 @@ CREATE TABLE subsidios(
 
 # Comentarios Subsidios
 ALTER TABLE subsidios COMMENT 'Subsidios para el pago de la factura';
-ALTER TABLE subsidios CHANGE subsidio_codigo subsidio_codigo INT NOT NULL COMMENT "Código del Subsidio";
 ALTER TABLE subsidios CHANGE estrato estrato INT NOT NULL COMMENT "Código del Estrato del Subsidio";
 ALTER TABLE subsidios CHANGE año año INT NOT NULL COMMENT "Año del Subsidio";
 ALTER TABLE subsidios CHANGE mes mes INT NOT NULL COMMENT "Mes del Subsidio";
 ALTER TABLE subsidios CHANGE subsidio subsidio FLOAT NOT NULL COMMENT "Valor del Subsidio, de 0 a 1";
 
 # Constrains Subsidios
-ALTER TABLE subsidios ADD CONSTRAINT subsidio_pk PRIMARY KEY (subsidio_codigo, año, mes);
+ALTER TABLE subsidios ADD CONSTRAINT subsidio_pk PRIMARY KEY (año, mes, estrato);
 ALTER TABLE subsidios ADD CONSTRAINT subsidios_estrato_fk FOREIGN KEY (estrato) REFERENCES estratos (estrato);
 ALTER TABLE subsidios ADD CONSTRAINT subsidios_año_fk FOREIGN KEY (año) REFERENCES años (año);
 ALTER TABLE subsidios ADD CONSTRAINT subsidios_mes_fk FOREIGN KEY (mes) REFERENCES meses (mes);
@@ -185,7 +180,7 @@ CREATE TABLE facturas(
 
 # Comentarios facturas
 ALTER TABLE facturas COMMENT 'Facturas';
-ALTER TABLE facturas CHANGE facturacion_codigo facturacion_codigo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT "Código de la Factura";
+
 ALTER TABLE facturas CHANGE hogar hogar INT NOT NULL COMMENT "Código del hogar de la Factura";
 ALTER TABLE facturas CHANGE año año INT NOT NULL COMMENT "Código del año de la Factura";
 ALTER TABLE facturas CHANGE mes mes INT NOT NULL COMMENT "Código del mes de la Factura";
@@ -193,7 +188,7 @@ ALTER TABLE facturas CHANGE valor valor FLOAT NOT NULL COMMENT "Valor de la Fact
 ALTER TABLE facturas CHANGE fecha fecha DATE NOT NULL COMMENT "Fecha de la Factura";
 
 # Constrains Facturas
-ALTER TABLE facturas ADD CONSTRAINT facturas_pk PRIMARY KEY (hogar, año, mes);
+ALTER TABLE facturas CHANGE facturacion_codigo facturacion_codigo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT "Código de la Factura";
 ALTER TABLE facturas ADD CONSTRAINT facturas_estrato_fk FOREIGN KEY (hogar) REFERENCES hogares (hogar);
 ALTER TABLE facturas ADD CONSTRAINT facturas_año_fk FOREIGN KEY (año) REFERENCES años (año);
 ALTER TABLE facturas ADD CONSTRAINT facturas_mes_fk FOREIGN KEY (mes) REFERENCES meses (mes);
@@ -491,7 +486,6 @@ WHERE(hogar,año,mes) NOT IN
 	 FROM facturas)
 GROUP BY año,mes 
 ORDER BY 1,2,3;
-
 
 # ==================================================
 #		Sentencias de Validación del modelo de datos
