@@ -392,7 +392,7 @@ DECLARE l_cursor_finished INT DEFAULT 0;
 DECLARE l_hogar INT DEFAULT 0;
 DECLARE l_valor_factura FLOAT DEFAULT 0;
 
-# Cursor de Hogares para el municipio
+# Cursor de Hogares para el estrato
 DECLARE hogares_c  CURSOR FOR
 	SELECT hogar 
 	FROM hogares 
@@ -425,12 +425,13 @@ IN p_hogar INT
 
 BEGIN 
 DECLARE l_cursor_finished INT DEFAULT 0;
-DECLARE l_consumo INT DEFAULT 0;
+DECLARE l_anio INT DEFAULT 0;
+DECLARE l_mes INT DEFAULT 0;
 DECLARE l_valor_factura FLOAT DEFAULT 0;
 
-# Cursor de Hogares para el municipio
+# Cursor de años,meses para consumos x hogar
 DECLARE consumos_c  CURSOR FOR
-	SELECT c.`año`, c.mes
+	SELECT c.año, c.mes
 	FROM consumos c
 	WHERE c.hogar = p_hogar;
 
@@ -439,23 +440,25 @@ DECLARE consumos_c  CURSOR FOR
         
 OPEN consumos_c;
 getValores: LOOP 
-	FETCH consumos_c INTO l_consumo;
+	FETCH consumos_c INTO l_anio, l_mes;
+	
 	IF l_cursor_finished = 1 THEN 
 			LEAVE getValores;
 	END IF;
-	
-	/*
-	El video se corta y no estoy seguro de que hace el profe aquí :c
-	SET @l_valor_factura = f_calcula_factura(p_hogar, p_año, p_mes);
-	
-	# Insertar/Actualizar Facturas
-	CALL p_actualizar_registro_factura(l_hogar, p_año, p_mes, l_valor_factura);
-	*/
+	 
+	# aqui calculamos el valor de la factura
+	SET  @l_valor_factura:= f_calcula_factura(p_hogar, l_anio, l_mes);
+        
+	# Aqui invocamos el procedimiento que actualiza o
+	# inserta el registro de la factura
+	CALL p_actualizar_registro_factura(p_hogar, l_anio, l_mes, l_valor_factura);
+      
 END LOOP getValores;	
 CLOSE consumos_c;
 
 END$$
 DELIMITER ;
+
 # Procedimiento para ejecutar las facturas de los hogares
 # de un municipio, por año y por mes
 DELIMITER $$
