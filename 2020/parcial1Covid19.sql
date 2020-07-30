@@ -1,4 +1,4 @@
-ccreate database if not exists covid19 CHARACTER SET utf8 COLLATE utf8_general_ci;
+create database if not exists covid19 CHARACTER SET utf8 COLLATE utf8_general_ci;
 use covid19;
 # Creación de Tablas
 
