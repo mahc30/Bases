@@ -78,7 +78,7 @@ CREATE TABLE consolidados
     KEY `departamento` (`departamento`),
     CONSTRAINT `fk_consolidados_departamento` FOREIGN KEY `departamento` (`departamento`) REFERENCES departamentos (`id`),
     KEY `tipo` (`tipo`),
-    CONSTRAINT `fk_consolidados_tipo` FOREIGN KEY `tipo` (`tipo`) REFERENCES estados (`id`)
+    CONSTRAINT `fk_consolidados_tipo` FOREIGN KEY `tipo` (`tipo`) REFERENCES tipo_registros (`id`)
 );
 
 # =============================
@@ -156,9 +156,9 @@ FROM import_table;
 #                 Funciones
 # =======================================
 # Obtener Casos x Departamento hasta la fecha
-DROP FUNCTION f_contar_casos_x_departamento;
+# Casos de Contagio
 DELIMITER $$
-CREATE FUNCTION f_contar_casos_x_departamento(p_departamento int,
+CREATE FUNCTION f_contar_casos_x_departamento_contagio(p_departamento int,
                                               p_fecha date) RETURNS INT DETERMINISTIC
 BEGIN
     DECLARE l_total_casos INT default 0;
@@ -174,39 +174,80 @@ BEGIN
 END $$
 DELIMITER ;
 
-# VALIDAR TIPO DE REGISTRO
+#Casos de fallecimientos
 DELIMITER $$
-
-CREATE FUNCTION f_validar_tipo_registro(fecha_fallecimiento date,
-                                        fecha_recuperacion date) RETURNS INT DETERMINISTIC
+CREATE FUNCTION f_contar_casos_x_departamento_fallecimiento(p_departamento int,
+                                              p_fecha date) RETURNS INT DETERMINISTIC
 BEGIN
-    DECLARE l_id_tipo int default 1;
-    #Por defecto todos son contagiados
-# Verificar si es recuperado
-    IF (fecha_recuperacion IS NULL AND fecha_fallecimiento IS NULL) THEN
-        SELECT id from tipo_registros WHERE descr = 'Activo' INTO l_id_tipo;
-    ELSEIF (fecha_recuperacion IS NOT NULL AND fecha_fallecimiento IS NULL) THEN
-        SELECT id from tipo_registros WHERE descr = 'Recuperado' INTO l_id_tipo;
-    ELSEIF (fecha_fallecimiento IS NOT NULL) THEN
-        SELECT id from tipo_registros WHERE descr = 'Fallecimiento' INTO l_id_tipo;
-    END IF;
+    DECLARE l_total_casos INT default 0;
 
-    return l_id_tipo;
+    SELECT COUNT(c.id)
+    INTO l_total_casos
+    FROM casos c
+             JOIN ciudades c2 on c.ciudad = c2.id
+    WHERE c2.departamento = p_departamento
+      AND c.fecha_reporte <= p_fecha
+      AND fecha_fallecimiento IS NOT NULL;
+
+    RETURN l_total_casos;
 END $$
 DELIMITER ;
+
+#Casos de Recuperados
+DELIMITER $$
+CREATE FUNCTION f_contar_casos_x_departamento_recuperado(p_departamento int,
+                                              p_fecha date) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE l_total_casos INT default 0;
+
+    SELECT COUNT(c.id)
+    INTO l_total_casos
+    FROM casos c
+             JOIN ciudades c2 on c.ciudad = c2.id
+    WHERE c2.departamento = p_departamento
+      AND c.fecha_reporte <= p_fecha
+      AND c.fecha_recuperacion IS NOT NULL
+      AND c.fecha_fallecimiento IS NULL;
+
+    RETURN l_total_casos;
+END $$
+DELIMITER ;
+
+#Casos activos
+DELIMITER $$
+CREATE FUNCTION f_contar_casos_x_departamento_activo(p_departamento int,
+                                              p_fecha date) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE l_total_casos INT default 0;
+
+    SELECT COUNT(c.id)
+    INTO l_total_casos
+    FROM casos c
+             JOIN ciudades c2 on c.ciudad = c2.id
+    WHERE c2.departamento = p_departamento
+      AND c.fecha_reporte <= p_fecha
+      AND c.fecha_recuperacion IS NULL
+      AND c.fecha_fallecimiento IS NULL;
+
+    RETURN l_total_casos;
+END $$
+DELIMITER ;
+# VALIDAR TIPO DE REGISTRO
+DELIMITER $$
 
 # =======================================
 #           PROCEDIMIENTOS
 # =======================================
 
-# Consolidado por Fechas
+# Consolidado por Fechas Contagio
 DROP PROCEDURE p_consolidado_fechas;
 DELIMITER $$
-CREATE PROCEDURE p_consolidado_fechas()
+CREATE PROCEDURE p_consolidado_fechas(
+p_tipo int
+)
 
 BEGIN
     DECLARE l_accum int;
-    DECLARE l_tipo int DEFAULT 1; #Contagio
     DECLARE l_cursor_finishedD INT DEFAULT 0;
     DECLARE l_id_departamento INT;
 
@@ -239,8 +280,17 @@ BEGIN
                         LEAVE fechasLoop;
                     END IF;
 
-                    SET l_accum = f_contar_casos_x_departamento(l_id_departamento, l_fecha_rep);
-                    INSERT INTO consolidados(fecha, tipo, departamento, acumulado) VALUE (l_fecha_rep, l_tipo, l_id_departamento, l_accum);
+                    IF(p_tipo = 1) THEN #Contagio
+                    SET l_accum = f_contar_casos_x_departamento_contagio(l_id_departamento, l_fecha_rep);
+                    ELSEIF (p_tipo = 2) THEN #Fallecimiento
+                        SET l_accum = f_contar_casos_x_departamento_fallecimiento(l_id_departamento, l_fecha_rep);
+                    ELSEIF (p_tipo = 3) THEN #Recuperado
+                        SET l_accum = f_contar_casos_x_departamento_recuperado(l_id_departamento, l_fecha_rep);
+                    ELSEIF (p_tipo = 4) THEN #Activo
+                        SET l_accum = f_contar_casos_x_departamento_activo(l_id_departamento, l_fecha_rep);
+                    END IF;
+
+                    INSERT INTO consolidados(fecha, tipo, departamento, acumulado) VALUE (l_fecha_rep, p_tipo, l_id_departamento, l_accum);
 
                 END LOOP fechasLoop;
                 CLOSE fechas_c;
@@ -254,6 +304,18 @@ BEGIN
 
 END$$
 DELIMITER ;
+
+select fecha, departamento, acumulado from consolidados where fecha >= '2020-07-20' AND tipo = 2;
+select  departamento, count(fecha) from consolidados where tipo = 2 group by departamento;
+
+#Comprobar que consolidados si esté bien llenado
+SELECT c.fecha, tr.descr, sum(acumulado) as acumulado
+       FROM consolidados c
+           JOIN departamentos d on c.departamento = d.id
+           JOIN tipo_registros tr on c.tipo = tr.id
+WHERE c.fecha = '2020-07-20'
+#AND c.tipo = 1 #1 Contagio #2 Fallecimiento #3 Recuperado #4 Activo
+GROUP BY c.fecha, tr.descr;
 
 SELECT distinct fecha, count(tipo) FROM consolidados GROUP BY fecha;
 SET FOREIGN_KEY_CHECKS = 0;
