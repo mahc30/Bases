@@ -305,10 +305,15 @@ BEGIN
 END$$
 DELIMITER ;
 
-select fecha, departamento, acumulado from consolidados where fecha >= '2020-07-20' AND tipo = 2;
-select  departamento, count(fecha) from consolidados where tipo = 2 group by departamento;
-
 #Comprobar que consolidados si esté bien llenado
+
+#Ver casos acumulados por departamento
+select  c.fecha, tr.descr, d.sigla, acumulado
+from consolidados c join departamentos d on c.departamento = d.id
+join tipo_registros tr on c.tipo = tr.id
+where fecha >= '2020-07-20';
+
+# Ver casos Acumulados en total
 SELECT c.fecha, tr.descr, sum(acumulado) as acumulado
        FROM consolidados c
            JOIN departamentos d on c.departamento = d.id
@@ -317,12 +322,74 @@ WHERE c.fecha = '2020-07-20'
 #AND c.tipo = 1 #1 Contagio #2 Fallecimiento #3 Recuperado #4 Activo
 GROUP BY c.fecha, tr.descr;
 
-SELECT distinct fecha, count(tipo) FROM consolidados GROUP BY fecha;
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE table consolidados;
-TRUNCATE table atenciones;
-TRUNCATE table ciudades;
-TRUNCATE table departamentos;
-TRUNCATE table estados;
-TRUNCATE table casos;
-SET FOREIGN_KEY_CHECKS = 1;
+# ====================================
+#               VISTAS
+# =====================================
+CREATE VIEW edad_x_contagio AS (
+
+    SELECT concat(10*floor(edad/10), '-', 10*floor(edad/10) + 9) AS `range`,
+                            count(*) AS `Contagios`
+FROM casos
+GROUP BY 1
+ORDER BY `range`
+);
+
+CREATE VIEW edad_x_fallecimiento AS (
+
+    SELECT concat(10*floor(edad/10), '-', 10*floor(edad/10) + 9) AS `range`,
+                            count(*) AS `Fallecimientos`
+FROM casos
+WHERE fecha_fallecimiento IS NOT NULL
+GROUP BY 1
+ORDER BY `range`
+);
+
+CREATE VIEW edad_x_recuperado AS (
+
+    SELECT concat(10*floor(edad/10), '-', 10*floor(edad/10) + 9) AS `range`,
+                            count(*) AS `Recuperados`
+FROM casos
+WHERE fecha_fallecimiento IS NULL
+AND fecha_recuperacion IS NOT NULL
+GROUP BY 1
+ORDER BY `range`
+);
+
+CREATE VIEW edad_x_activo AS (
+
+    SELECT concat(10*floor(edad/10), '-', 10*floor(edad/10) + 9) AS `range`,
+                            count(*) AS `Activos`
+FROM casos
+WHERE fecha_fallecimiento IS NULL
+AND fecha_recuperacion IS NULL
+GROUP BY 1
+ORDER BY `range`
+);
+# ETAPA 5
+# •	Top 5 de los departamentos con más casos recuperados
+select tr.descr, d.descr, c.acumulado
+from consolidados c join departamentos d on c.departamento = d.id
+join tipo_registros tr on c.tipo = tr.id
+where fecha >= '2020-07-20'
+AND c.tipo = 3
+order by c.acumulado desc
+limit 5;
+
+# •	Top 3 de los rangos de edades con más fallecimientos.
+SELECT concat(10*floor(edad/10), '-', 10*floor(edad/10) + 9) AS `range`,
+       count(*) AS `Fallecimientos`
+FROM casos
+WHERE fecha_fallecimiento IS NOT NULL
+GROUP BY 1
+ORDER BY `range` DESC
+LIMIT 3;
+
+
+# •	Top 10 de las ciudades con más casos activos.
+select ci.nombre_ciudad, count(c.id) as casos
+from casos c join ciudades ci on c.ciudad = ci.id
+      WHERE c.fecha_recuperacion IS NULL
+      AND c.fecha_fallecimiento IS NULL
+group by ci.nombre_ciudad
+order by casos desc
+limit 10;
