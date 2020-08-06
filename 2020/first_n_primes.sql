@@ -3,7 +3,10 @@ use primos;
 
 create table primos
 (
-    num int
+    num int,
+    start timestamp,
+    end timestamp,
+    total timestamp
 );
 
 drop procedure n_first_primes;
@@ -12,8 +15,12 @@ create procedure n_first_primes(
     lim int
 )
 BEGIN
-     declare num int default 1;
+   declare num int default 1;
     declare a int default 1;
+    declare st timestamp default current_timestamp();
+    declare et timestamp default current_timestamp();
+    declare diff timestamp;
+
     while num <= lim
         do
             iteratorLoop:
@@ -21,7 +28,9 @@ BEGIN
                 do
 
                     if (a = num) then
-                        insert into primos (num) values (num);
+                        set et = current_timestamp();
+                        SELECT timediff(et,st) into diff;
+                        insert into primos (num, start, end, total) values (num, st, et, diff);
                     elseif (mod(num, a) = 0) then
                         leave iteratorLoop;
                     end if;
