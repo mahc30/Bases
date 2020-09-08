@@ -1,7 +1,13 @@
+# Base de Datos Sismos para visualización con medoo
+# Por:
+# - Carolina Monsalve Vásquez ID: 000367045
+# - Dan Ellis Echavarría ID: 000366765
+# - Miguel Ángel Hincapié Calle ID: 000148441
+
 create database if not exists sismos_db CHARACTER SET utf8 COLLATE utf8_general_ci;
-use sismos_db;
 
-
+/*
+#Usuario con el que se trabajó
 CREATE USER 'sismos_usr'@'%' IDENTIFIED BY 'UnaClav3';
 GRANT SELECT, INSERT, UPDATE, ALTER, DROP ON sismos_db.* TO 'sismos_usr';
 GRANT CREATE ON sismos_db.* TO 'sismos_usr'@'%';
@@ -11,6 +17,9 @@ GRANT TRIGGER ON sismos_db.* TO 'sismos_usr'@'%';
 GRANT FILE ON *.* TO 'sismos_usr'@'%';
 FLUSH PRIVILEGES;
 FLUSH HOSTS;
+*/
+
+use sismos_db;
 
 # Creación de Tablas
 
@@ -55,16 +64,17 @@ from regiones;
 INSERT INTO sismos(fecha, hora, latitud, longitud, profundidad, magnitud, id_region)
 SELECT cast(t.`Fecha-Hora  (UTC)` as date),
        TIME_FORMAT(t.`Fecha-Hora  (UTC)`, "%H"),
-       cast(t.Latitud as float),
-       cast(t.Longitud as float),
-       cast(t.`Profundidad en Kms` as float),
-       cast(t.Magnitud as float),
+        cast(REPLACE(t.Latitud,",",".") as float),
+        cast(REPLACE(t.Longitud,",",".") as float),
+        cast(REPLACE(t.`Profundidad en Kms`,",",".") as float),
+    cast(REPLACE(t.Magnitud,",",".") as float),
        r.id
 FROM Proyecto04_SismosAntioquia_datos_2019_20200901 t
          join regiones r on t.Región = r.region;
 select *
 from sismos;
 
+select longitud from sismos;
 create view v_req01 as
 (
 select distinct hora as hora_dia, count(*) as total_temblores
@@ -91,39 +101,46 @@ group by region
 
 create view v_req04 as
 (
-select distinct region           as region,
-                count(*)         as total_temblores,
-                avg(profundidad) as promedio_profundidad
-from sismos
-group by region "desde_0_a0_99",
-                            "desde_1_a1_99",
-                            "desde_2_a2_99",
-                            "desde_3_a3_99",
-                            "mas_de_4"
+WITH `range1` AS (
+    SELECT COUNT(*) AS `count`
+    FROM `sismos`
+    WHERE `magnitud` >= 0
+      AND `magnitud` < 1
+),
+     `range2` AS (
+         SELECT COUNT(*) AS `count`
+         FROM `sismos`
+         WHERE `magnitud` >= 1
+           AND `magnitud` < 2
+     ),
+     `range3` AS (
+         SELECT COUNT(*) AS `count`
+         FROM `sismos`
+         WHERE `magnitud` >= 2
+           AND `magnitud` < 3
+     ),
+     `range4` AS (
+         SELECT COUNT(*) AS `count`
+         FROM `sismos`
+         WHERE `magnitud` >= 3
+           AND `magnitud` < 4
+     ),
+     `range5` AS (
+         SELECT COUNT(*) AS `count`
+         FROM `sismos`
+         WHERE `magnitud` >= 4
+     )
+SELECT `range1`.`count` AS `desde_0_a0_99`,
+       `range2`.`count` AS `desde_1_a1_99`,
+       `range3`.`count` AS `desde_2_a2_99`,
+       `range4`.`count` AS `desde_3_a3_99`,
+       `range5`.`count` AS `mas_de_4`
+FROM `range1`
+         CROSS JOIN `range2`
+         CROSS JOIN `range3`
+         CROSS JOIN `range4`
+         CROSS JOIN `range5`
     );
-select '0-1' as Range1, coalesce(avg(magnitud), 0) as "desde_0_a0_99"
-from sismos
-where magnitud > 0
-  and magnitud <= 1
-union
-select '1-2' as Range1, coalesce(avg(magnitud), 0) as "desde_1_a1_99"
-from sismos
-where magnitud > 1
-  and magnitud <= 2
-union
-select '2-3' as Range1, coalesce(avg(magnitud), 0) as "desde_2_a2_99"
-from sismos
-where magnitud > 2
-  and magnitud <= 3
-union
-select '3-4' as Range1, coalesce(avg(magnitud), 0) as "desde_3_a3_99"
-from sismos
-where magnitud > 3
-  and magnitud <= 4
-union
-select '4+' as Range1, coalesce(avg(magnitud), 0) as "mas_de_4"
-from sismos
-where magnitud > 4;
 
 create view temblores as
 (
